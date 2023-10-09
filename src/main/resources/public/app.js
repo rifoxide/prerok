@@ -19,7 +19,7 @@ function connect(e) {
 		console.log("Already connected!");
 		return;
 	}
-	ws = new WebSocket('ws://localhost:8080/text');
+	ws = new WebSocket('ws://' + window.location.host + '/text');
 	ws.binaryType = "arraybuffer";
 	ws.onmessage = function(data) {
 		log_msg(data.data);
