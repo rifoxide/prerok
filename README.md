@@ -1,5 +1,5 @@
 # prerok
-A file shareing web application.
+A file sharing web application.
 
 **Run:**
 ```bash
