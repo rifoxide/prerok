@@ -1,0 +1,39 @@
+html,
+body,
+.container {
+  height: 95%;
+}
+
+@media (min-width: 800px) {
+  .card {
+    width: 550px;
+  }
+}
+
+.btn-small {
+  height: 44px;
+}
+
+.tabs .tab.generate a {
+  color: #56aff6;
+}
+
+.tabs .tab.generate a:focus,
+.tabs .tab.generate a:focus.active {
+  background-color: #e7f4fe;
+}
+
+.tabs .tab.generate a:hover,
+.tabs .tab.generate a:active,
+.tabs .tab.generate a.active {
+  background-color: transparent;
+  color: #2196f3;
+}
+
+.collapsible {
+  box-shadow: none !important;
+}
+
+.collapsible li.disabled .collapsible-body {
+  display: none !important;
+}
