@@ -1,34 +1,120 @@
 <!DOCTYPE html>
-<html>
 
 <head>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Prerok</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- <script src="static/dist/bundle.min.js"></script> -->
+
+  <script src="js/m_components.js"></script>
+  <script src="js/utils.js"></script>
+
+  <style>
+    table.file-list {
+      max-height: fit-content;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+
+    table.file-list th,
+    td {
+      max-height: fit-content;
+      table-layout: fixed;
+      word-wrap: break-word;
+      padding: 1%;
+    }
+  </style>
 </head>
 
 <body>
-  <form class="container">
-    <input type="file" id="file" multiple>
-    <button id="file_send" type="button" class="waves-effect waves-light btn">send file</button>
-  </form>
+  <div class="navbar-fixed">
+    <nav>
+      <div class="nav-wrapper blue darken-3">
+        <a href="#" class="brand-logo center">Prerok</a>
+      </div>
+    </nav>
+  </div>
+  <div class="container valign-wrapper">
+    <div class="row">
+      <div class="card">
+        <div class="card-tabs">
+          <ul class="tabs tabs-fixed-width">
+            <li class="tab generate">
+              <a class="active" href="#generate">Send</a>
+            </li>
+            <li class="tab"><a href="#receive">Receive</a></li>
+          </ul>
+        </div>
+        <div class="card-content">
+          <div id="generate">
+            <form id="submit_url">
+              <span class="card-title center">Select the file(s) you want to send</span>
+              <div class="card-content left-align">
+                <div class="input-field">
+                  <div class="file-field input-field">
+                    <div class="btn blue btn-small">
+                      <span>Browse</span>
+                      <input type="file" multiple>
+                    </div>
+                    <div class="file-path-wrapper">
+                      <input class="file-path validate" type="text" placeholder="upload one or more files">
+                    </div>
+                  </div>
+                </div>
+                <div class="upload-file-list">
+                  <table class="file-list striped" style="display:none;">
+                    <thead>
+                      <tr>
+                        <th width="70%">Name</th>
+                        <th>Size</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-action center">
+                <button id="upload_btn" class="btn btn-small waves-effect center-align blue">Upload<i
+                    class="material-icons right">cloud_upload</i>
+                </button>
+              </div>
+            </form>
+          </div>
+          <div id="receive">
+            <form>
+              <span class="card-title center">Enter the receiving code</span>
+              <div class="card-content center">
+                <div class="input-field">
+                  <input id="delete_url" name="url_suffix" type="url" class="validate" required aria-required="true">
+                  <label for="delete_url">receiving code</label>
+                </div>
+              </div>
+              <div class="card-action center-align">
+                <button id="delete_btn" class="btn btn-small waves-effect right-align red" type="submit">
+                  Download<i class="material-icons right">cloud_download</i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', event => {
+      m_tab_init()
+      m_tab_callback()
+    })
 
-  <form class="container">
-    <label>WebSocket</label>
-    <button id="btn_connect" type="button" class="waves-effect waves-light btn">Connect</button>
-    <button id="btn_disconnect" type="button" class="waves-effect waves-light btn">Disconnect</button>
-  </form>
-
-  <form class="container">
-    <textarea id="msg_box" placeholder="Write your message here..." required></textarea>
-    <button id="btn_send" class="waves-effect waves-light btn">Send</button>
-  </form>
-
-  <table id="chat" class="striped container">
-    <tbody id="logtable"></tbody>
-  </table>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script src="/app.js"></script>
+    document.querySelector('div.btn.blue.btn-small input').addEventListener('change', function (e) {
+      gen_file_list_table(e.target.files);
+    });
+  </script>
+  <script src="js/app.js"></script>
 </body>
 
 </html>
