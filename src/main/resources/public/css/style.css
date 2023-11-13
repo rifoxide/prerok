@@ -37,3 +37,23 @@ body,
 .collapsible li.disabled .collapsible-body {
   display: none !important;
 }
+
+div.upload-file-list {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+table.file-list {
+  max-height: fit-content;
+  table-layout: fixed;
+  word-wrap: break-word;
+
+}
+
+table.file-list th,
+td {
+  max-height: fit-content;
+  table-layout: fixed;
+  word-wrap: break-word;
+  padding: 1%;
+}
