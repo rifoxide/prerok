@@ -38,22 +38,31 @@ body,
   display: none !important;
 }
 
-div.upload-file-list {
-  max-height: 300px;
-  overflow-y: scroll;
+.upload-file-list {
+  max-height: 260px;
+  overflow-y: auto;
 }
 
-table.file-list {
+.upload-file-list thead th {
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+}
+
+.file-list {
   max-height: fit-content;
-  table-layout: fixed;
   word-wrap: break-word;
-
+  border-collapse: collapse;
 }
 
-table.file-list th,
+.file-list th,
 td {
   max-height: fit-content;
   table-layout: fixed;
   word-wrap: break-word;
   padding: 1%;
+}
+
+.delete-file {
+  position: inherit !important;
 }
