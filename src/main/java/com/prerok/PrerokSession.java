@@ -7,6 +7,7 @@ import java.util.Random;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.prerok.receiver.response.ReciverInitRespHeader;
 import com.prerok.sender.response.SenderInitRespHeader;
 
 public class PrerokSession {
@@ -15,19 +16,26 @@ public class PrerokSession {
   WebSocketSession reciver;
   ArrayList<FileInfo> file_list;
 
+  final byte SENDER_INIT_RESP = 1;
+  final byte RECIVER_INIT_RESP = 2;
+
   public PrerokSession(WebSocketSession sender, ArrayList<FileInfo> file_list) {
     this.sender = sender;
     this.file_list = file_list;
     sid = getSaltString();
     System.out.println(String.format("new session: %s created with sender: %s", sid, sender.getId()));
 
-    sender_notify_init();
+    sender_init_notify();
   }
 
-  public void sender_notify_init() {
+  public void sender_init_notify() {
     String welcome_header_string = new SenderInitRespHeader(true, sid).as_json();
-    byte code = 1;
-    reply_sender(code, welcome_header_string.getBytes(), new byte[0]);
+    reply_sender(SENDER_INIT_RESP, welcome_header_string.getBytes(), new byte[0]);
+  }
+
+  public void reciver_init_notify() {
+    String reciver_init_resp_header = new ReciverInitRespHeader(true, sid, file_list).as_json();
+    reply_reciver(RECIVER_INIT_RESP, reciver_init_resp_header.getBytes(), new byte[0]);
   }
 
   void reply_sender(byte code, byte[] header, byte[] data) {
@@ -85,6 +93,7 @@ public class PrerokSession {
 
   public void set_reciver(WebSocketSession reciver) {
     this.reciver = reciver;
+    reciver_init_notify();
   }
 
   public void set_sender(WebSocketSession sender) {

@@ -3,17 +3,17 @@ package com.prerok;
 public class FileInfo {
   public String name;
   public String size;
-  public int trns;
+  int transfared;
 
-  public String get_name() {
-    return name;
-  }
+  // public String get_name() {
+  // return name;
+  // }
 
-  public int get_trns() {
-    return trns;
-  }
+  // public int get_trns() {
+  // return trns;
+  // }
 
-  public String get_size() {
-    return size;
-  }
+  // public String get_size() {
+  // return size;
+  // }
 }

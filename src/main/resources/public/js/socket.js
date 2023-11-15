@@ -25,7 +25,8 @@ function disconnect() {
 }
 
 
-const SENDER_INIT_RESP = 1;
+const INIT_SENDER_RESP = 1;
+const INIT_RECEIVER_RESP = 2;
 // let gmsg;
 async function handle_msg(binary_msg) {
   let msg_array = new Uint8Array(binary_msg);
@@ -41,17 +42,28 @@ async function handle_msg(binary_msg) {
   console.log("data:", data);
 
   switch (msg_type) {
-    case SENDER_INIT_RESP: {
-      handle_sender_init_resp(header_string);
+    case INIT_SENDER_RESP: {
+      handle_init_sender_resp(header_string);
+      break;
+    }
+    case INIT_RECEIVER_RESP: {
+      handle_init_reciever_resp(header_string);
       break;
     }
   }
 }
 
-function handle_sender_init_resp(header) {
+function handle_init_sender_resp(header) {
   let res = JSON.parse(header);
-  console.log("Your prerok session id is: ", res.sid);
-  alert("Your prerok session id is: " + res.sid)
+  console.log("Your are a sender of: ", res.sid);
+  alert("Your are a sender of: " + res.sid)
+}
+
+function handle_init_reciever_resp(header) {
+  let res = JSON.parse(header);
+  console.log("Your are a receiver of: ", res.sid);
+  alert("Your are a receiver of: " + res.sid)
+  console.log("FILE LIST: ", res.file_list);
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;

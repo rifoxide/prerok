@@ -23,6 +23,11 @@ function init_sender() {
 }
 
 const INIT_RECIVER_REQ = "\x02";
-function init_reciver(sid) {
-  socket.send(encoder.encode(INIT_RECIVER_REQ + sid));
+function init_reciver() {
+  connect();
+  let sid = document.getElementById("receive_code").value;
+  console.log("init reaciver: ", sid);
+  let init_receiver_header = JSON.stringify({ "sid": sid });
+  let len = gen_fixed_len(init_receiver_header.length);
+  socket.send(encoder.encode(INIT_RECIVER_REQ + len + init_receiver_header));
 }
