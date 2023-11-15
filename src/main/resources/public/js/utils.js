@@ -1,23 +1,28 @@
-function gen_file_list_table (files) {
-  const table = document.querySelector('div.upload-file-list table.file-list')
-  table.style.display = '';
-  const tbody = table.querySelector("tbody");
-  let i = 0
-  for (const file of files) {
-    const html = `<td>${file.name}</td>
-    <td>${file.size}</td>
-    <td class="center-align">
-    <a onclick="remove_file();" class="waves-effect waves-red btn-flat">
-    <i class="material-icons red-text">delete</i>
-    </a>
-    </td>`
-    const row = tbody.insertRow(i)
-    row.innerHTML = html
-    i += 1
-  }
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+function human_readable_bytes(bytes) {
+  return new Intl.NumberFormat([], {
+    style: 'unit',
+    unit: 'byte',
+    notation: 'compact',
+    unitDisplay: 'narrow'
+  }).format(bytes)
 }
 
+function gen_fixed_len(num) {
+  return ("000" + num).slice(-4);
+}
 
-function remove_file(e){
-  console.log(e);
+const INIT_SENDER_REQ = "\x01";
+function init_sender() {
+  connect();
+  let init_sender_header = JSON.stringify({ "file_list": gen_upload_table_json() });
+  let len = gen_fixed_len(init_sender_header.length);
+  socket.send(encoder.encode(INIT_SENDER_REQ + len + init_sender_header));
+}
+
+const INIT_RECIVER_REQ = "\x02";
+function init_reciver(sid) {
+  socket.send(encoder.encode(INIT_RECIVER_REQ + sid));
 }
