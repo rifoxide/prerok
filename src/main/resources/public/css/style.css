@@ -1,7 +1,7 @@
 html,
 body,
 .container {
-  height: 95%;
+  height: 97%;
 }
 
 @media (min-width: 800px) {
@@ -39,7 +39,7 @@ body,
 }
 
 .upload-file-list {
-  max-height: 260px;
+  max-height: 215px;
   overflow-y: auto;
 }
 
@@ -65,4 +65,28 @@ td {
 
 .delete-file {
   position: inherit !important;
+}
+
+div#current_ongoing_file_tooltip {
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.progress {
+  background-color: #9ed1f8;
+  border-radius: 4px;
+  text-align: center;
+  font-size: small;
+  min-height: 18px;
+  overflow: hidden;
+  position: relative;
+}
+
+.determinate {
+  position: relative;
+  text-align: right;
+  white-space: nowrap;
+  font-size: small;
 }

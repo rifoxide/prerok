@@ -79,6 +79,33 @@
                   onclick="connect()" style="display: none;">Upload<i class="material-icons right">cloud_upload</i>
                 </button>
               </div>
+              <ul class="collapsible pin" style="display: none;">
+                <li>
+                  <div class="collapsible-header">
+                    <i class="material-icons">pin</i>
+                    <span>Your transfer pin <b><span class="pin_code"></span></b></span>
+                  </div>
+                  <div class="collapsible-body">
+                    <span>
+                      <div id="current_ongoing_file_tooltip" class="tooltipped"
+                        data-tooltip="Semester-Final-Exam.-Schedule-Fall-2023__19.11.2023-CSE-EEE-CIVIL-Textile-and-Law-Regular-Day-Programs-Bi-semester-for-Chairmen.pdf">
+                        <i
+                          id="current_ongoing_file_name">Semester-Final-Exam.-Schedule-Fall-2023__19.11.2023-CSE-EEE-CIVIL-Textile-and-Law-Regular-Day-Programs-Bi-semester-for-Chairmen.pdf</i>
+                      </div>
+                      <div class="progress">
+                        <div class="determinate blue" style="width: 50%; animation: grow 2s;"><span
+                            id="current_ongoing_file_progress">50%</span></div>
+                      </div>
+                    </span>
+                    <span>
+                      <b>Overall progress</b>
+                      <div class="progress"><span id="overall_progress">1/10 (50MB/560MB)</span>
+                        <div class="determinate blue" style="width: 20%"></div>
+                      </div>
+                    </span>
+                  </div>
+                </li>
+              </ul>
             </form>
           </div>
           <div id="receive">
@@ -117,6 +144,8 @@
     window.addEventListener('DOMContentLoaded', event => {
       m_tab_init()
       m_tab_callback()
+      m_collapsible_init()
+      m_tooltip_init()
     })
 
     document.querySelector('div.btn.blue.btn-small input').addEventListener('change', function (e) {
@@ -129,4 +158,5 @@
 
   </script>
 </body>
+
 </html>

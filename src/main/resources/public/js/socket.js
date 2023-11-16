@@ -8,11 +8,17 @@ function connect() {
   socket.onopen = (event) => {
     console.log("The connection has been opened successfully.");
     is_connected = true;
+
+    document.querySelector('ul.collapsible.pin').style.display = '';
+    document.querySelector('span.pin_code').textContent = gen_pin_code();
   }
 
   socket.onclose = (event) => {
     console.log("The connection has been closed successfully.");
     is_connected = false;
+
+    document.querySelector('ul.collapsible.pin').style.display = 'none';
+    document.querySelector('span.pin_code').textContent = '';
   };
 }
 
