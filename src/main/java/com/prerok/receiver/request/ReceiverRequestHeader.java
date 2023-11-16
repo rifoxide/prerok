@@ -1,6 +1,6 @@
 package com.prerok.receiver.request;
 
-public class ReciverRequestHeader {
+public class ReceiverRequestHeader {
   public String sid;
 
   public String get_sid() {

@@ -57,12 +57,12 @@ function init_sender() {
   socket.send(encoder.encode(INIT_SENDER_REQ + len + init_sender_header));
 }
 
-function init_reciver() {
+function init_receiver() {
   let sid = document.getElementById("receive_code").value;
   if (!sid.length) return;
 
-  console.log("init reaciver: ", sid);
+  console.log("init receiver: ", sid);
   let init_receiver_header = JSON.stringify({ "sid": sid });
   let len = gen_fixed_len(init_receiver_header.length);
-  socket.send(encoder.encode(INIT_RECIVER_REQ + len + init_receiver_header));
+  socket.send(encoder.encode(INIT_RECEIVER_REQ + len + init_receiver_header));
 }

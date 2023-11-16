@@ -1,4 +1,4 @@
-function gen_recieve_table(files) {
+function gen_receive_table(files) {
   const table = document.querySelector('div.receive-file-list table.file-list')
   table.style.display = ''
   const tbody = table.querySelector('tbody')

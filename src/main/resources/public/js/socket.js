@@ -54,7 +54,7 @@ async function handle_msg(binary_msg) {
       break;
     }
     case INIT_RECEIVER_RESP: {
-      handle_init_reciever_resp(header_string);
+      handle_init_receiver_resp(header_string);
       break;
     }
   }
@@ -73,12 +73,12 @@ function handle_init_sender_resp(header) {
   document.getElementById('bbrowse_btn').style.display = 'none';
 }
 
-function handle_init_reciever_resp(header) {
+function handle_init_receiver_resp(header) {
   let res = JSON.parse(header);
   console.log("Your are a receiver of: ", res.sid);
   console.log("FILE LIST: ", res.file_list);
 
-  gen_recieve_table(res.file_list)
+  gen_receive_table(res.file_list)
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;

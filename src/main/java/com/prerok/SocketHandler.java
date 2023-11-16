@@ -13,8 +13,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.prerok.receiver.request.ReciverRequestHeader;
-import com.prerok.receiver.response.ReciverInitRespHeader;
+import com.prerok.receiver.request.ReceiverRequestHeader;
+import com.prerok.receiver.response.ReceiverInitRespHeader;
 import com.prerok.sender.request.InitSenderHeader;
 
 import org.slf4j.Logger;
@@ -75,26 +75,26 @@ public class SocketHandler extends BinaryWebSocketHandler {
 				break;
 			}
 
-			case MessageTypes.INIT_RECIVER_REQ: {
-				ReciverRequestHeader reciver_request_header;
+			case MessageTypes.INIT_RECEIVER_REQ: {
+				ReceiverRequestHeader receiver_request_header;
 				try {
-					reciver_request_header = new ObjectMapper().readValue(new String(header),
-							ReciverRequestHeader.class);
+					receiver_request_header = new ObjectMapper().readValue(new String(header),
+							ReceiverRequestHeader.class);
 				} catch (Exception e) {
-					logger.error("Could not deserialize InitReciver");
+					logger.error("Could not deserialize InitReceiver");
 					return;
 				}
 
-				PrerokSession session = sid_to_prerok_session.get(reciver_request_header.get_sid());
-				if (session != null && session.get_reciver() == null) {
-					logger.info(String.format("user: %s is now reciver of session: %s",
-							connection.getId(), reciver_request_header.get_sid()));
-					session.set_reciver(connection);
+				PrerokSession session = sid_to_prerok_session.get(receiver_request_header.get_sid());
+				if (session != null && session.get_receiver() == null) {
+					logger.info(String.format("user: %s is now receiver of session: %s",
+							connection.getId(), receiver_request_header.get_sid()));
+					session.set_receiver(connection);
 					conn_id_to_session_id.put(connection.getId(), session.get_id());
 				} else {
 					logger.info(String.format("couldn't find sender for the receiver '%s' with transfer code '%s'",
 							connection.getId(),
-							reciver_request_header.get_sid()));
+							receiver_request_header.get_sid()));
 					try {
 						connection.sendMessage(new TextMessage("TRANSFER_CODE_NOT_FOUND"));
 					} catch (Exception e) {

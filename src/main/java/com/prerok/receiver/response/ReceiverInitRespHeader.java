@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prerok.FileInfo;
 
-public class ReciverInitRespHeader {
+public class ReceiverInitRespHeader {
   public boolean status;
   public String sid;
   public ArrayList<FileInfo> file_list;
 
-  public ReciverInitRespHeader(boolean status, String sid, ArrayList<FileInfo> file_list) {
+  public ReceiverInitRespHeader(boolean status, String sid, ArrayList<FileInfo> file_list) {
     this.status = status;
     this.sid = sid;
     this.file_list = file_list;
