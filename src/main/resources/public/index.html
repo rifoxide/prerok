@@ -50,7 +50,9 @@
                       <tr>
                         <th width="70%">Name</th>
                         <th>Size</th>
-                        <th>Action</th>
+
+                        <th class="center-align">Action</th>
+
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -72,14 +74,44 @@
                   </div>
                 </div>
 
-                <button type="button" class="btn btn-small waves-effect center-align blue"
+
+                <button type="button" id="bbrowse_btn" class="btn btn-small waves-effect center-align blue"
+
                   onclick="document.getElementById('browse_btn').click();" style="margin-right: 15px;">Browse<i
                     class="material-icons right">upload_file</i>
                 </button>
                 <button type="button" id="upload_btn" class="btn btn-small waves-effect center-align blue"
-                  onclick="init_sender()" style="display: none;">Upload<i class="material-icons right">cloud_upload</i>
+
+                  onclick="init_ws(init_sender)" style="display: none;">Upload<i
+                    class="material-icons right">cloud_upload</i>
                 </button>
               </div>
+              <ul class="collapsible pin" style="display: none;">
+                <li>
+                  <div class="collapsible-header">
+                    <i class="material-icons blue-text">pin</i>
+                    <span>Your transfer code <b><span class="pin_code"></span></b></span>
+                  </div>
+                  <div class="collapsible-body-disabled" style="display: none;">
+                    <span>
+                      <div id="current_ongoing_file_tooltip" class="tooltipped" data-tooltip="">
+                        <i id=" current_ongoing_file_name"></i>
+                      </div>
+                      <div class="progress">
+                        <div class="determinate blue" style="width: 50%; animation: grow 2s;"><span
+                            id="current_ongoing_file_progress"></span></div>
+                      </div>
+                    </span>
+                    <span>
+                      <b>Overall progress</b>
+                      <div class="progress"><span id="overall_progress"></span>
+                        <div class="determinate blue" style="width: 20%"></div>
+                      </div>
+                    </span>
+                  </div>
+                </li>
+              </ul>
+
             </form>
           </div>
           <div id="receive">
@@ -91,6 +123,9 @@
                       <tr>
                         <th width="70%">Name</th>
                         <th>Size</th>
+
+                        <th align="center-align">Progress</th>
+
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -98,14 +133,17 @@
                 </div>
 
                 <span class="card-title center">Enter the receiving code</span>
-                <div class="input-field">
-                  <input id="receive_code" type="text" class="validate" required>
+
+                <div class="input-field" id="receive_code_input">
+                  <input pattern="^[A-Za-z0-9]+$" id="receive_code" type="text" class="validate" required>
+
                   <label for="receive_code">receiving code</label>
                 </div>
               </div>
               <div class="card-action center-align">
 
-                <button type="button" id="delete_btn" onclick="init_reciver()"
+                <button type="submit" id="delete_btn" onclick="init_ws(init_receiver)"
+
                   class="btn btn-small waves-effect right-align red">Download<i
                     class="material-icons right">cloud_download</i>
                 </button>
@@ -120,11 +158,21 @@
     window.addEventListener('DOMContentLoaded', event => {
       m_tab_init()
       m_tab_callback()
+      m_collapsible_init()
+      m_tooltip_init()
     })
 
     document.querySelector('div.btn.blue.btn-small input').addEventListener('change', function (e) {
       gen_upload_table(e.target.files);
     });
+
+
+    const form_elem = document.querySelector("#receive_form")
+    form_elem.addEventListener('submit', async event => {
+      event.preventDefault()
+    })
+
+
 
     $('table.file-list').on('click', function (event) {
       set_file_status();

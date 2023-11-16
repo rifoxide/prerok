@@ -1,13 +1,17 @@
 let socket
-let is_connected
+
+let is_connected = false;
 
 async function connect() {
   if (is_connected) return;
   socket = new WebSocket(`ws://${window.location.host}/text`);
+
+
   socket.binaryType = "arraybuffer";
-  socket.onmessage = function(event) {
+  socket.onmessage = function (event) {
     handle_msg(event.data);
   }
+
   socket.onopen = (event) => {
     console.log("The connection has been opened successfully.");
     is_connected = true;
@@ -17,6 +21,9 @@ async function connect() {
     console.log("The connection has been closed (unexpected)");
     is_connected = false;
   };
+
+  return;
+
 }
 
 function disconnect() {
@@ -27,6 +34,13 @@ function disconnect() {
 
 // let gmsg;
 async function handle_msg(binary_msg) {
+
+  if (typeof binary_msg == "string") {
+    handle_404_transfer_code();
+    return;
+  }
+
+
   let msg_array = new Uint8Array(binary_msg);
   // gmsg = msg_array;
   console.log(decoder.decode(msg_array));
@@ -45,23 +59,41 @@ async function handle_msg(binary_msg) {
       break;
     }
     case INIT_RECEIVER_RESP: {
-      handle_init_reciever_resp(header_string);
+
+      handle_init_receiver_resp(header_string);
+
       break;
     }
   }
 }
 
-function handle_init_sender_resp(header) {
-  let res = JSON.parse(header);
-  console.log("Your are a sender of: ", res.sid);
-  alert("Your are a sender of: " + res.sid)
+function handle_404_transfer_code() {
+  error_toast("Transfer code was incorrect.")
 }
 
-function handle_init_reciever_resp(header) {
+function handle_init_sender_resp(header) {
+  let res = JSON.parse(header);
+
+  document.querySelector('ul.collapsible.pin').style.display = '';
+  document.querySelector('span.pin_code').textContent = res.sid;
+  document.getElementById('upload_btn').style.display = 'none';
+  document.getElementById('bbrowse_btn').style.display = 'none';
+
+
+  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function () {
+    $(this).prop("onclick", null).unbind('click');
+    $($(this).find('i.material-icons')[0]).removeClass("red-text").addClass("grey-text");
+  });
+  $('table.file-list').unbind('click');
+}
+
+function handle_init_receiver_resp(header) {
   let res = JSON.parse(header);
   console.log("Your are a receiver of: ", res.sid);
-  alert("Your are a receiver of: " + res.sid)
   console.log("FILE LIST: ", res.file_list);
+
+  gen_receive_table(res.file_list)
+
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;

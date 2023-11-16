@@ -30,3 +30,8 @@ function m_charcounter_init () {
   )
   M.CharacterCounter.init(charcounter_elem)
 }
+
+function m_tooltip_init () {
+  const tooltip_elem = document.querySelectorAll('.tooltipped')
+  M.Tooltip.init(tooltip_elem)
+}

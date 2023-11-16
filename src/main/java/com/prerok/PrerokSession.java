@@ -7,13 +7,17 @@ import java.util.Random;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.prerok.receiver.response.ReciverInitRespHeader;
+
+import com.prerok.receiver.response.ReceiverInitRespHeader;
+
 import com.prerok.sender.response.SenderInitRespHeader;
 
 public class PrerokSession {
   String sid;
   WebSocketSession sender;
-  WebSocketSession reciver;
+
+  WebSocketSession receiver;
+
   ArrayList<FileInfo> file_list;
 
   public PrerokSession(WebSocketSession sender, ArrayList<FileInfo> file_list) {
@@ -30,9 +34,11 @@ public class PrerokSession {
     reply_sender(MessageTypes.INIT_SENDER_RESP, sender_init_resp_header.getBytes(), new byte[0]);
   }
 
-  public void reciver_init_notify() {
-    String reciver_init_resp_header = new ReciverInitRespHeader(true, sid, file_list).as_json();
-    reply_reciver(MessageTypes.INIT_RECIVER_RESP, reciver_init_resp_header.getBytes(), new byte[0]);
+
+  public void receiver_init_notify() {
+    String receiver_init_resp_header = new ReceiverInitRespHeader(true, sid, file_list).as_json();
+    reply_receiver(MessageTypes.INIT_RECEIVER_RESP, receiver_init_resp_header.getBytes(), new byte[0]);
+
   }
 
   void reply_sender(byte code, byte[] header, byte[] data) {
@@ -50,7 +56,9 @@ public class PrerokSession {
     }
   }
 
-  void reply_reciver(byte code, byte[] header, byte[] data) {
+
+  void reply_receiver(byte code, byte[] header, byte[] data) {
+
     byte[] reply = new byte[1 + 4 + header.length + data.length];
     ByteBuffer buffer = ByteBuffer.wrap(reply);
     buffer.put(code);
@@ -58,10 +66,12 @@ public class PrerokSession {
     buffer.put(header);
     buffer.put(data);
     try {
-      reciver.sendMessage(new BinaryMessage(buffer.array()));
+
+      receiver.sendMessage(new BinaryMessage(buffer.array()));
 
     } catch (Exception e) {
-      System.out.println("Could not repy to reciver");
+      System.out.println("Could not repy to receiver");
+
       e.printStackTrace();
     }
   }
@@ -73,32 +83,38 @@ public class PrerokSession {
 
   public void handle_msg(byte type, byte[] data, WebSocketSession connection) {
     if (sender == connection) {
-    } else if (reciver == connection) {
+
+    } else if (receiver == connection) {
+
     }
   }
 
   public void disconnect_handler(WebSocketSession connection) {
     if (sender == connection)
       sender = null;
-    else if (reciver == connection)
-      reciver = null;
+
+    else if (receiver == connection)
+      receiver = null;
   }
 
   boolean should_be_removed() {
-    return sender == null && reciver == null;
+    return sender == null && receiver == null;
   }
 
-  public void set_reciver(WebSocketSession reciver) {
-    this.reciver = reciver;
-    reciver_init_notify();
+  public void set_receiver(WebSocketSession receiver) {
+    this.receiver = receiver;
+    receiver_init_notify();
+
   }
 
   public void set_sender(WebSocketSession sender) {
     this.sender = sender;
   }
 
-  public WebSocketSession get_reciver() {
-    return reciver;
+
+  public WebSocketSession get_receiver() {
+    return receiver;
+
   }
 
   public WebSocketSession get_sender() {
