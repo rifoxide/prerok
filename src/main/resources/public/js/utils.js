@@ -1,13 +1,13 @@
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
+// https://gist.github.com/zentala/1e6f72438796d74531803cc3833c039c
 function human_readable_bytes(bytes) {
-  return new Intl.NumberFormat([], {
-    style: 'unit',
-    unit: 'byte',
-    notation: 'compact',
-    unitDisplay: 'narrow'
-  }).format(bytes)
+  if (bytes == 0) return '0B';
+  var k = 1024,
+    sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+    i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + sizes[i];
 }
 
 function gen_fixed_len(num) {
