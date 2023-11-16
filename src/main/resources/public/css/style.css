@@ -90,3 +90,7 @@ div#current_ongoing_file_tooltip {
   white-space: nowrap;
   font-size: small;
 }
+
+table {
+  border: 1px solid rgba(207, 207, 207, 0.62)
+}

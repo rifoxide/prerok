@@ -1,0 +1,10 @@
+package com.prerok;
+
+public final class MessageTypes {
+
+  public static final byte INIT_SENDER_REQ = 1;
+  public static final byte INIT_RECIVER_REQ = 2;
+  public static final byte INIT_SENDER_RESP = 1;
+  public static final byte INIT_RECIVER_RESP = 2;
+
+}

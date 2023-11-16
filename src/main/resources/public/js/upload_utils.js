@@ -1,7 +1,3 @@
-function gen_pin_code() {
-    return Math.floor(Math.random() * 899999 + 100000)
-}
-
 function get_total_bytes() {
     let total = 0
     $('table.file-list tbody tr td:nth-child(2)').each(function () { total += parseInt($(this).attr('size-in-bytes')) })
