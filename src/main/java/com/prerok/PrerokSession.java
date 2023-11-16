@@ -7,7 +7,6 @@ import java.util.Random;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-
 import com.prerok.receiver.response.ReceiverInitRespHeader;
 
 import com.prerok.sender.response.SenderInitRespHeader;
@@ -19,6 +18,22 @@ public class PrerokSession {
   WebSocketSession receiver;
 
   ArrayList<FileInfo> file_list;
+
+  public void pass_away(WebSocketSession conn, byte[] data) {
+    if (conn == sender) {
+      try {
+        receiver.sendMessage(new BinaryMessage(data));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } else if (conn == receiver) {
+      try {
+        sender.sendMessage(new BinaryMessage(data));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
 
   public PrerokSession(WebSocketSession sender, ArrayList<FileInfo> file_list) {
     this.sender = sender;
@@ -33,7 +48,6 @@ public class PrerokSession {
     String sender_init_resp_header = new SenderInitRespHeader(true, sid).as_json();
     reply_sender(MessageTypes.INIT_SENDER_RESP, sender_init_resp_header.getBytes(), new byte[0]);
   }
-
 
   public void receiver_init_notify() {
     String receiver_init_resp_header = new ReceiverInitRespHeader(true, sid, file_list).as_json();
@@ -55,7 +69,6 @@ public class PrerokSession {
       e.printStackTrace();
     }
   }
-
 
   void reply_receiver(byte code, byte[] header, byte[] data) {
 
@@ -110,7 +123,6 @@ public class PrerokSession {
   public void set_sender(WebSocketSession sender) {
     this.sender = sender;
   }
-
 
   public WebSocketSession get_receiver() {
     return receiver;

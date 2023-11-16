@@ -78,7 +78,6 @@ public class SocketHandler extends BinaryWebSocketHandler {
 				break;
 			}
 
-
 			case MessageTypes.INIT_RECEIVER_REQ: {
 				ReceiverRequestHeader receiver_request_header;
 				try {
@@ -106,7 +105,12 @@ public class SocketHandler extends BinaryWebSocketHandler {
 					}
 				}
 
-
+				break;
+			}
+			case MessageTypes.PASS_AWAY: {
+				String sid = conn_id_to_session_id.get(connection.getId());
+				PrerokSession session = sid_to_prerok_session.get(sid);
+				session.pass_away(connection, payload);
 				break;
 			}
 

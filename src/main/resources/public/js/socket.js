@@ -8,7 +8,7 @@ async function connect() {
 
 
   socket.binaryType = "arraybuffer";
-  socket.onmessage = function (event) {
+  socket.onmessage = function(event) {
     handle_msg(event.data);
   }
 
@@ -59,9 +59,68 @@ async function handle_msg(binary_msg) {
       break;
     }
     case INIT_RECEIVER_RESP: {
-
       handle_init_receiver_resp(header_string);
+      break;
+    }
+    case PASS_AWAY: {
+      handle_pass_away(header_string, data);
+    }
+  }
+}
 
+function find_file(name, size) {
+  let files = document.getElementById('browse_btn').files;
+  for (i = 0; i < files.length; i++) {
+    if (files[i].name == name && files[i].size == size) { return files[i] }
+  }
+  return null;
+}
+
+function concatTypedArrays(a, b) { // a, b TypedArray of same type
+  var c = new (a.constructor)(a.length + b.length);
+  c.set(a, 0);
+  c.set(b, a.length);
+  return c;
+}
+
+const CHUNK_SIZE = 500000; // 500kb
+function send_chunk(start, end, name, size, chunk) {
+  let header = JSON.stringify({
+    type: PASS_AWAY_FILE_CHUNK, chunk_info: { name: name, size: size, start: start, end: end }
+  });
+  let len = gen_fixed_len(header.length);
+  let x = encoder.encode(PASS_AWAY_ + len + header);
+  socket.send(concatTypedArrays(x, chunk));
+}
+
+async function upload_file(file) {
+  if (file == null) { console.log("file does not exist"); return; }
+  let start = 0;
+  let end = Math.min(CHUNK_SIZE, file.size);
+  for (; ;) {
+    if (start == file.size) break;
+    let chunk = new Uint8Array(await file.slice(start, end).arrayBuffer());
+    send_chunk(start, end, file.name, file.size, chunk);
+    start = end;
+    end = Math.min(file.size, end + CHUNK_SIZE);
+  }
+}
+
+function handle_pass_away(header_string, data) {
+  header = JSON.parse(header_string);
+  console.log(header)
+  console.log("header.type : ", header.type)
+  console.log("PASS_AWAY_FILE_REQ", PASS_AWAY_FILE_REQ)
+  console.log("PASS_AWAY_FILE_REQ==header.type : ", PASS_AWAY_FILE_REQ == header.type)
+  switch (header.type) {
+    case PASS_AWAY_FILE_REQ: {
+      console.log("file request: ", header.file_info.name);
+      let file = find_file(header.file_info.name, header.file_info.size);
+      upload_file(file);
+      break;
+    }
+    case PASS_AWAY_FILE_CHUNK: {
+      console.log("got file chunk: ", header);
       break;
     }
   }
@@ -80,7 +139,7 @@ function handle_init_sender_resp(header) {
   document.getElementById('bbrowse_btn').style.display = 'none';
 
 
-  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function () {
+  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function() {
     $(this).prop("onclick", null).unbind('click');
     $($(this).find('i.material-icons')[0]).removeClass("red-text").addClass("grey-text");
   });

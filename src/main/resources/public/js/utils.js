@@ -74,3 +74,11 @@ function init_receiver() {
   socket.send(encoder.encode(INIT_RECEIVER_REQ + len + init_receiver_header));
 
 }
+
+
+function request_file(name, size) {
+  let header = JSON.stringify({ type: PASS_AWAY_FILE_REQ, file_info: { name: name, size: size } });
+  let len = gen_fixed_len(header.length);
+  socket.send(encoder.encode(PASS_AWAY_ + len + header));
+}
+
