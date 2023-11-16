@@ -38,14 +38,15 @@ body,
   display: none !important;
 }
 
-.upload-file-list {
-
+.upload-file-list,
+.receive-file-list {
   max-height: 215px;
-
   overflow-y: auto;
+  border: 1px solid rgba(207, 207, 207, 0.62)
 }
 
-.upload-file-list thead th {
+.upload-file-list thead th,
+.receive-file-list thead th {
   position: sticky;
   top: 0;
   background-color: #ffffff;
@@ -67,7 +68,6 @@ td {
 
 .delete-file {
   position: inherit !important;
-
 }
 
 div#current_ongoing_file_tooltip {
@@ -92,9 +92,4 @@ div#current_ongoing_file_tooltip {
   text-align: right;
   white-space: nowrap;
   font-size: small;
-}
-
-table {
-  border: 1px solid rgba(207, 207, 207, 0.62)
-
 }

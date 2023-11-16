@@ -71,3 +71,9 @@ function gen_upload_table_json() {
     return data;
 }
 
+
+function init_sender() {
+    let init_sender_header = JSON.stringify({ "file_list": gen_upload_table_json() });
+    let len = gen_fixed_len(init_sender_header.length);
+    socket.send(encoder.encode(INIT_SENDER_REQ + len + init_sender_header));
+}

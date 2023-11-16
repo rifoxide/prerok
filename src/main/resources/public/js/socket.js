@@ -1,14 +1,12 @@
 let socket
-
 let is_connected = false;
 
 async function connect() {
   if (is_connected) return;
   socket = new WebSocket(`ws://${window.location.host}/text`);
 
-
   socket.binaryType = "arraybuffer";
-  socket.onmessage = function(event) {
+  socket.onmessage = function (event) {
     handle_msg(event.data);
   }
 
@@ -23,7 +21,6 @@ async function connect() {
   };
 
   return;
-
 }
 
 function disconnect() {
@@ -34,12 +31,10 @@ function disconnect() {
 
 // let gmsg;
 async function handle_msg(binary_msg) {
-
   if (typeof binary_msg == "string") {
     handle_404_transfer_code();
     return;
   }
-
 
   let msg_array = new Uint8Array(binary_msg);
   // gmsg = msg_array;
@@ -83,7 +78,7 @@ function concatTypedArrays(a, b) { // a, b TypedArray of same type
   return c;
 }
 
-const CHUNK_SIZE = 500000; // 500kb
+const CHUNK_SIZE = 1000000; // 1mb
 function send_chunk(start, end, name, size, chunk) {
   let header = JSON.stringify({
     type: PASS_AWAY_FILE_CHUNK, chunk_info: { name: name, size: size, start: start, end: end }
@@ -125,25 +120,27 @@ function handle_pass_away(header_string, data) {
 
 //"chunk_info":{"name":"GoogleDot-Black.tar.gz","size":4785772,"start":4500000,"end":4785772}
 function handle_file_chunk(chunk_info, data) {
-  console.log("chunk info: ", chunk_info);
-  console.log("chunk data: ", data);
-  file_list_buf.get(chunk_info.name + chunk_info.size).set(data, chunk_info.start);
-  console.log("file buf: ", file_list_buf.get(chunk_info.name + chunk_info.size));
-  if (chunk_info.end == file_list_buf.get(chunk_info.name + chunk_info.size).length) {
-    console.log("download complet: ", file_list_buf.get(chunk_info.name + chunk_info.size))
 
-    const link = document.createElement('a');
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    const blob = new Blob([file_list_buf.get(chunk_info.name + chunk_info.size)], { type: 'text/plain' });
+  // console.log("chunk info: ", chunk_info);
+  // console.log("chunk data: ", data);
+  let file_buf = file_list_buf.get(chunk_info.name + chunk_info.size)
+  file_buf.set(data, chunk_info.start);
+
+  set_dl_progress(chunk_info.name, `${((chunk_info.end / file_buf.length) * 100).toFixed(0)}`)
+
+  if (chunk_info.end == file_buf.length) {
+    const blob = new Blob([file_buf]);
     const objectURL = URL.createObjectURL(blob);
 
+    const link = document.createElement('a');
     link.href = objectURL;
-    link.href = URL.createObjectURL(blob);
     link.download = chunk_info.name;
-    link.click();
+    // link.click();
+    link.remove();
 
-    alert("compleat");
+    window.URL.revokeObjectURL(objectURL);
+    console.log("completed download.")
+
   }
 }
 
@@ -160,7 +157,7 @@ function handle_init_sender_resp(header) {
   document.getElementById('bbrowse_btn').style.display = 'none';
 
 
-  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function() {
+  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function () {
     $(this).prop("onclick", null).unbind('click');
     $($(this).find('i.material-icons')[0]).removeClass("red-text").addClass("grey-text");
   });
@@ -174,13 +171,15 @@ function handle_init_receiver_resp(header) {
   console.log("FILE LIST: ", res.file_list);
   g_file_list = res.file_list;
 
+
   for (i = 0; i < res.file_list.length; i++) {
     console.log("setting file list buf: ");
     file_list_buf.set(res.file_list[i].name + res.file_list[i].size, new Uint8Array(res.file_list[i].size));
   }
 
-  gen_receive_table(res.file_list);
 
+  gen_receive_table(res.file_list)
+  download_all_files()
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;

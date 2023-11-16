@@ -50,9 +50,7 @@
                       <tr>
                         <th width="70%">Name</th>
                         <th>Size</th>
-
                         <th class="center-align">Action</th>
-
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -74,14 +72,11 @@
                   </div>
                 </div>
 
-
                 <button type="button" id="bbrowse_btn" class="btn btn-small waves-effect center-align blue"
-
                   onclick="document.getElementById('browse_btn').click();" style="margin-right: 15px;">Browse<i
                     class="material-icons right">upload_file</i>
                 </button>
                 <button type="button" id="upload_btn" class="btn btn-small waves-effect center-align blue"
-
                   onclick="init_ws(init_sender)" style="display: none;">Upload<i
                     class="material-icons right">cloud_upload</i>
                 </button>
@@ -111,7 +106,6 @@
                   </div>
                 </li>
               </ul>
-
             </form>
           </div>
           <div id="receive">
@@ -123,9 +117,7 @@
                       <tr>
                         <th width="70%">Name</th>
                         <th>Size</th>
-
                         <th align="center-align">Progress</th>
-
                       </tr>
                     </thead>
                     <tbody></tbody>
@@ -133,17 +125,13 @@
                 </div>
 
                 <span class="card-title center">Enter the receiving code</span>
-
                 <div class="input-field" id="receive_code_input">
                   <input pattern="^[A-Za-z0-9]+$" id="receive_code" type="text" class="validate" required>
-
                   <label for="receive_code">receiving code</label>
                 </div>
               </div>
               <div class="card-action center-align">
-
                 <button type="submit" id="delete_btn" onclick="init_ws(init_receiver)"
-
                   class="btn btn-small waves-effect right-align red">Download<i
                     class="material-icons right">cloud_download</i>
                 </button>
@@ -171,7 +159,6 @@
     form_elem.addEventListener('submit', async event => {
       event.preventDefault()
     })
-
 
 
     $('table.file-list').on('click', function (event) {

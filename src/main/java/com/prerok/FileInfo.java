@@ -3,10 +3,7 @@ package com.prerok;
 public class FileInfo {
   public String name;
   public String size;
-
   int transferred;
-
-
   // public String get_name() {
   // return name;
   // }
