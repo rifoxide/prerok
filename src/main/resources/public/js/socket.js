@@ -6,7 +6,7 @@ async function connect() {
   socket = new WebSocket(`ws://${window.location.host}/text`);
 
   socket.binaryType = "arraybuffer";
-  socket.onmessage = function (event) {
+  socket.onmessage = function(event) {
     handle_msg(event.data);
   }
 
@@ -124,18 +124,21 @@ function handle_file_chunk(chunk_info, data) {
   // console.log("chunk info: ", chunk_info);
   // console.log("chunk data: ", data);
   let file_buf = file_list_buf.get(chunk_info.name + chunk_info.size)
-  file_buf.set(data, chunk_info.start);
+  // file_buf.set(data, chunk_info.start);
+  file_buf.push(data)
+  // console.log("file_buf: ", file_buf);
+  set_dl_progress(chunk_info.name, `${((chunk_info.end / chunk_info.size) * 100).toFixed(0)}`)
 
-  set_dl_progress(chunk_info.name, `${((chunk_info.end / file_buf.length) * 100).toFixed(0)}`)
+  if (chunk_info.end == chunk_info.size) {
+    set_dl_progress(chunk_info.name, 100)
+    let blob = new Blob(file_buf);
+    console.log("blob size: ", blob.size);
+    let objectURL = URL.createObjectURL(blob);
 
-  if (chunk_info.end == file_buf.length) {
-    const blob = new Blob([file_buf]);
-    const objectURL = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
+    let link = document.createElement('a');
     link.href = objectURL;
     link.download = chunk_info.name;
-    // link.click();
+    link.click();
     link.remove();
 
     window.URL.revokeObjectURL(objectURL);
@@ -157,7 +160,7 @@ function handle_init_sender_resp(header) {
   document.getElementById('bbrowse_btn').style.display = 'none';
 
 
-  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function () {
+  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function() {
     $(this).prop("onclick", null).unbind('click');
     $($(this).find('i.material-icons')[0]).removeClass("red-text").addClass("grey-text");
   });
@@ -174,7 +177,7 @@ function handle_init_receiver_resp(header) {
 
   for (i = 0; i < res.file_list.length; i++) {
     console.log("setting file list buf: ");
-    file_list_buf.set(res.file_list[i].name + res.file_list[i].size, new Uint8Array(res.file_list[i].size));
+    file_list_buf.set(res.file_list[i].name + res.file_list[i].size, []);
   }
 
 
