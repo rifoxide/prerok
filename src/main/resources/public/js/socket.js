@@ -71,6 +71,13 @@ function handle_init_sender_resp(header) {
   document.querySelector('span.pin_code').textContent = res.sid;
   document.getElementById('upload_btn').style.display = 'none';
   document.getElementById('bbrowse_btn').style.display = 'none';
+
+
+  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function () {
+    $(this).prop("onclick", null).unbind('click');
+    $($(this).find('i.material-icons')[0]).removeClass("red-text").addClass("grey-text");
+  });
+  $('table.file-list').unbind('click');
 }
 
 function handle_init_receiver_resp(header) {
