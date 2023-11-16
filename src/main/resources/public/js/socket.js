@@ -120,6 +120,7 @@ function handle_pass_away(header_string, data) {
 
 //"chunk_info":{"name":"GoogleDot-Black.tar.gz","size":4785772,"start":4500000,"end":4785772}
 function handle_file_chunk(chunk_info, data) {
+
   // console.log("chunk info: ", chunk_info);
   // console.log("chunk data: ", data);
   let file_buf = file_list_buf.get(chunk_info.name + chunk_info.size)
@@ -139,6 +140,7 @@ function handle_file_chunk(chunk_info, data) {
 
     window.URL.revokeObjectURL(objectURL);
     console.log("completed download.")
+
   }
 }
 
@@ -162,16 +164,19 @@ function handle_init_sender_resp(header) {
   $('table.file-list').unbind('click');
 }
 
+
 function handle_init_receiver_resp(header) {
   let res = JSON.parse(header);
   console.log("Your are a receiver of: ", res.sid);
   console.log("FILE LIST: ", res.file_list);
   g_file_list = res.file_list;
 
+
   for (i = 0; i < res.file_list.length; i++) {
     console.log("setting file list buf: ");
     file_list_buf.set(res.file_list[i].name + res.file_list[i].size, new Uint8Array(res.file_list[i].size));
   }
+
 
   gen_receive_table(res.file_list)
   download_all_files()
