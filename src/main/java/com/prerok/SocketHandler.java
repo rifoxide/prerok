@@ -2,6 +2,7 @@ package com.prerok;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -13,8 +14,10 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.prerok.receiver.request.ReceiverRequestHeader;
 import com.prerok.receiver.response.ReceiverInitRespHeader;
+
 import com.prerok.sender.request.InitSenderHeader;
 
 import org.slf4j.Logger;
@@ -75,6 +78,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 				break;
 			}
 
+
 			case MessageTypes.INIT_RECEIVER_REQ: {
 				ReceiverRequestHeader receiver_request_header;
 				try {
@@ -101,6 +105,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 						logger.info("failed to send message to the receiver.");
 					}
 				}
+
 
 				break;
 			}

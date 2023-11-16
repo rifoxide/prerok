@@ -8,6 +8,7 @@ function human_readable_bytes(bytes) {
     notation: 'compact',
     unitDisplay: 'narrow'
   }).format(bytes)
+
 }
 
 function gen_fixed_len(num) {
@@ -48,14 +49,20 @@ async function init_ws(func) {
 
     await sleep(100);
   }
+
 }
 
+function gen_fixed_len(num) {
+  return ("000" + num).slice(-4);
+}
 
 function init_sender() {
+
   let init_sender_header = JSON.stringify({ "file_list": gen_upload_table_json() });
   let len = gen_fixed_len(init_sender_header.length);
   socket.send(encoder.encode(INIT_SENDER_REQ + len + init_sender_header));
 }
+
 
 function init_receiver() {
   let sid = document.getElementById("receive_code").value;
@@ -65,4 +72,5 @@ function init_receiver() {
   let init_receiver_header = JSON.stringify({ "sid": sid });
   let len = gen_fixed_len(init_receiver_header.length);
   socket.send(encoder.encode(INIT_RECEIVER_REQ + len + init_receiver_header));
+
 }

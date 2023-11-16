@@ -1,9 +1,11 @@
 let socket
+
 let is_connected = false;
 
 async function connect() {
   if (is_connected) return;
   socket = new WebSocket(`ws://${window.location.host}/text`);
+
 
   socket.binaryType = "arraybuffer";
   socket.onmessage = function (event) {
@@ -21,6 +23,7 @@ async function connect() {
   };
 
   return;
+
 }
 
 function disconnect() {
@@ -31,10 +34,12 @@ function disconnect() {
 
 // let gmsg;
 async function handle_msg(binary_msg) {
+
   if (typeof binary_msg == "string") {
     handle_404_transfer_code();
     return;
   }
+
 
   let msg_array = new Uint8Array(binary_msg);
   // gmsg = msg_array;
@@ -54,7 +59,9 @@ async function handle_msg(binary_msg) {
       break;
     }
     case INIT_RECEIVER_RESP: {
+
       handle_init_receiver_resp(header_string);
+
       break;
     }
   }
@@ -86,6 +93,7 @@ function handle_init_receiver_resp(header) {
   console.log("FILE LIST: ", res.file_list);
 
   gen_receive_table(res.file_list)
+
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;
