@@ -25,8 +25,6 @@ function disconnect() {
 }
 
 
-const INIT_SENDER_RESP = 1;
-const INIT_RECEIVER_RESP = 2;
 // let gmsg;
 async function handle_msg(binary_msg) {
   let msg_array = new Uint8Array(binary_msg);

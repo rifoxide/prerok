@@ -14,7 +14,6 @@ function gen_fixed_len(num) {
   return ("000" + num).slice(-4);
 }
 
-const INIT_SENDER_REQ = "\x01";
 function init_sender() {
   connect();
   let init_sender_header = JSON.stringify({ "file_list": gen_upload_table_json() });
@@ -22,7 +21,6 @@ function init_sender() {
   socket.send(encoder.encode(INIT_SENDER_REQ + len + init_sender_header));
 }
 
-const INIT_RECIVER_REQ = "\x02";
 function init_reciver() {
   connect();
   let sid = document.getElementById("receive_code").value;

@@ -16,9 +16,6 @@ public class PrerokSession {
   WebSocketSession reciver;
   ArrayList<FileInfo> file_list;
 
-  final byte SENDER_INIT_RESP = 1;
-  final byte RECIVER_INIT_RESP = 2;
-
   public PrerokSession(WebSocketSession sender, ArrayList<FileInfo> file_list) {
     this.sender = sender;
     this.file_list = file_list;
@@ -29,13 +26,13 @@ public class PrerokSession {
   }
 
   public void sender_init_notify() {
-    String welcome_header_string = new SenderInitRespHeader(true, sid).as_json();
-    reply_sender(SENDER_INIT_RESP, welcome_header_string.getBytes(), new byte[0]);
+    String sender_init_resp_header = new SenderInitRespHeader(true, sid).as_json();
+    reply_sender(MessageTypes.INIT_SENDER_RESP, sender_init_resp_header.getBytes(), new byte[0]);
   }
 
   public void reciver_init_notify() {
     String reciver_init_resp_header = new ReciverInitRespHeader(true, sid, file_list).as_json();
-    reply_reciver(RECIVER_INIT_RESP, reciver_init_resp_header.getBytes(), new byte[0]);
+    reply_reciver(MessageTypes.INIT_RECIVER_RESP, reciver_init_resp_header.getBytes(), new byte[0]);
   }
 
   void reply_sender(byte code, byte[] header, byte[] data) {

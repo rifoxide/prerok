@@ -40,22 +40,19 @@ public class SocketHandler extends BinaryWebSocketHandler {
 
 		byte[] payload = data.getPayload().array();
 
-		byte type_ = payload[0];
+		byte msg_type = payload[0];
 		int header_len = Integer.parseInt(new String(Arrays.copyOfRange(payload, 1, 5)));
 		byte[] header = Arrays.copyOfRange(payload, 5, 5 + header_len);
 		byte[] innerdata = Arrays.copyOfRange(payload, 5 + header_len, payload.length);
 
-		System.out.println(type_);
+		System.out.println(msg_type);
 		System.out.println(header_len);
 		System.out.println(new String(header));
 		System.out.println(new String(innerdata));
 
-		// if (1 == 1)
-		// return;
+		switch (msg_type) {
 
-		switch (type_) {
-
-			case 1: { // init sender
+			case MessageTypes.INIT_SENDER_REQ: { // init sender
 				if (conn_id_to_session_id.get(connection.getId()) != null) {
 					logger.info(String.format("user %s already in a session", connection.getId()));
 					return;
@@ -74,7 +71,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 				break;
 			}
 
-			case 2: { // init reciver
+			case MessageTypes.INIT_RECIVER_REQ: {
 				ReciverRequestHeader reciver_request_header;
 				try {
 					reciver_request_header = new ObjectMapper().readValue(new String(header), ReciverRequestHeader.class);
@@ -84,37 +81,21 @@ public class SocketHandler extends BinaryWebSocketHandler {
 				}
 				PrerokSession session = sid_to_prerok_session.get(reciver_request_header.get_sid());
 				if (session != null && session.get_reciver() == null) {
-					// logger.info(String.format("user: %s is now reciver of session: %s",
-					// connection.getId(), sid));
+					logger.info(String.format("user: %s is now reciver of session: %s",
+							connection.getId(), reciver_request_header.get_sid()));
 					session.set_reciver(connection);
 					conn_id_to_session_id.put(connection.getId(), session.get_id());
 				}
+				break;
 			}
 
 			default: {
-				String sid = conn_id_to_session_id.get(connection.getId());
-				PrerokSession session = sid_to_prerok_session.get(sid);
-				session.handle_msg(type_, innerdata, connection);
-
+				// String sid = conn_id_to_session_id.get(connection.getId());
+				// PrerokSession session = sid_to_prerok_session.get(sid);
+				// session.handle_msg(msg_type, innerdata, connection);
 				break;
 			}
 		}
-
-		// String msg = new String(payload.array());
-
-		// for (HashMap.Entry<String, WebSocketSession> otherSession :
-		// idToActiveSession.entrySet()) {
-		// if (otherSession.getKey().equals(connection.getId()))
-		// continue;
-		// // send to everyone else other then this session
-		// try {
-		// otherSession.getValue()
-		// .sendMessage(new BinaryMessage(String.format("%s : %s", connection.getId(),
-		// msg).getBytes()));
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
 	}
 
 	@Override

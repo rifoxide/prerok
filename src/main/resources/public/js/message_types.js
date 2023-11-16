@@ -1,0 +1,4 @@
+const INIT_SENDER_REQ = "\x01";
+const INIT_RECIVER_REQ = "\x02";
+const INIT_SENDER_RESP = 1;
+const INIT_RECEIVER_RESP = 2;
