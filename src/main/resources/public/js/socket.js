@@ -38,7 +38,7 @@ async function handle_msg(binary_msg) {
 
   let msg_array = new Uint8Array(binary_msg);
   // gmsg = msg_array;
-  console.log(decoder.decode(msg_array));
+  // console.log(decoder.decode(msg_array));
   let msg_type = msg_array[0];
   let header_len = parseInt(decoder.decode(msg_array.slice(1, 5)));
   let header_string = decoder.decode(msg_array.slice(5, 5 + header_len));
@@ -78,7 +78,7 @@ function concatTypedArrays(a, b) { // a, b TypedArray of same type
   return c;
 }
 
-const CHUNK_SIZE = 500000; // 500kb
+const CHUNK_SIZE = 1000000; // 1mb
 function send_chunk(start, end, name, size, chunk) {
   let header = JSON.stringify({
     type: PASS_AWAY_FILE_CHUNK, chunk_info: { name: name, size: size, start: start, end: end }
@@ -103,10 +103,7 @@ async function upload_file(file) {
 
 function handle_pass_away(header_string, data) {
   header = JSON.parse(header_string);
-  console.log(header)
-  console.log("header.type : ", header.type)
-  console.log("PASS_AWAY_FILE_REQ", PASS_AWAY_FILE_REQ)
-  console.log("PASS_AWAY_FILE_REQ==header.type : ", PASS_AWAY_FILE_REQ == header.type)
+  console.log("pass away header: ", header);
   switch (header.type) {
     case PASS_AWAY_FILE_REQ: {
       console.log("file request: ", header.file_info.name);
@@ -115,9 +112,33 @@ function handle_pass_away(header_string, data) {
       break;
     }
     case PASS_AWAY_FILE_CHUNK: {
-      console.log("got file chunk: ", header);
+      handle_file_chunk(header.chunk_info, data)
       break;
     }
+  }
+}
+
+//"chunk_info":{"name":"GoogleDot-Black.tar.gz","size":4785772,"start":4500000,"end":4785772}
+function handle_file_chunk(chunk_info, data) {
+  // console.log("chunk info: ", chunk_info);
+  // console.log("chunk data: ", data);
+  let file_buf = file_list_buf.get(chunk_info.name + chunk_info.size)
+  file_buf.set(data, chunk_info.start);
+
+  set_dl_progress(chunk_info.name, `${((chunk_info.end / file_buf.length) * 100).toFixed(0)}`)
+
+  if (chunk_info.end == file_buf.length) {
+    const blob = new Blob([file_buf]);
+    const objectURL = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = objectURL;
+    link.download = chunk_info.name;
+    // link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(objectURL);
+    console.log("completed download.")
   }
 }
 
@@ -145,8 +166,15 @@ function handle_init_receiver_resp(header) {
   let res = JSON.parse(header);
   console.log("Your are a receiver of: ", res.sid);
   console.log("FILE LIST: ", res.file_list);
+  g_file_list = res.file_list;
+
+  for (i = 0; i < res.file_list.length; i++) {
+    console.log("setting file list buf: ");
+    file_list_buf.set(res.file_list[i].name + res.file_list[i].size, new Uint8Array(res.file_list[i].size));
+  }
 
   gen_receive_table(res.file_list)
+  download_all_files()
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;

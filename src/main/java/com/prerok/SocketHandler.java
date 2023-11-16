@@ -52,7 +52,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 		System.out.println(msg_type);
 		System.out.println(header_len);
 		System.out.println(new String(header));
-		System.out.println(new String(innerdata));
+		// System.out.println(new String(innerdata));
 
 		switch (msg_type) {
 
