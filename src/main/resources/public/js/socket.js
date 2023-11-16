@@ -134,7 +134,7 @@ function handle_file_chunk(chunk_info, data) {
     const link = document.createElement('a');
     link.href = objectURL;
     link.download = chunk_info.name;
-    // link.click();
+    link.click();
     link.remove();
 
     window.URL.revokeObjectURL(objectURL);

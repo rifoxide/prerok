@@ -22,7 +22,7 @@ function gen_receive_table(files) {
 
 }
 
-function request_file(name, size) {
+async function request_file(name, size) {
   let header = JSON.stringify({ type: PASS_AWAY_FILE_REQ, file_info: { name: name, size: size } });
   let len = gen_fixed_len(header.length);
   socket.send(encoder.encode(PASS_AWAY_ + len + header));
@@ -41,7 +41,7 @@ async function download_all_files() {
     transfers.push({ name: file_name, row_idx: i })
 
     console.log(`Downloading '${file_name}' (${file_size})`)
-    request_file(file_name, size_in_bytes)
+    await request_file(file_name, size_in_bytes)
     await sleep(300);
   }
 }
