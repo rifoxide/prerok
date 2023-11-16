@@ -39,9 +39,7 @@ body,
 }
 
 .upload-file-list {
-
   max-height: 215px;
-
   overflow-y: auto;
 }
 
@@ -67,7 +65,6 @@ td {
 
 .delete-file {
   position: inherit !important;
-
 }
 
 div#current_ongoing_file_tooltip {
@@ -96,5 +93,4 @@ div#current_ongoing_file_tooltip {
 
 table {
   border: 1px solid rgba(207, 207, 207, 0.62)
-
 }
