@@ -1,3 +1,6 @@
+//dosnt belong here, but anyway
+let file_list_buf = new Map();
+
 const INIT_SENDER_REQ = "\x01";
 const INIT_RECEIVER_REQ = "\x02";
 const INIT_SENDER_RESP = 1;
