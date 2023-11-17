@@ -1,7 +1,5 @@
-html,
-body,
-.container {
-  height: 97%;
+.valign-wrapper {
+  min-height: calc(100vh - 64px);
 }
 
 @media (min-width: 800px) {
