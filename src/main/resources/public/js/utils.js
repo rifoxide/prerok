@@ -2,7 +2,7 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 // https://gist.github.com/zentala/1e6f72438796d74531803cc3833c039c
-function human_readable_bytes(bytes) {
+function humanReadableBytes(bytes) {
   if (bytes == 0) return '0B';
   var k = 1024,
     sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
@@ -46,6 +46,33 @@ async function init_ws(func) {
       break;
     };
 
-    await sleep(100);
+    await sleep(500);
+  }
+}
+
+// 
+// 
+function setTransferFileProgress(fileName, progress, transferType) {
+  const row_idx = transfers.find(x => x.name === fileName).row_idx;
+
+  let div_tag, prog_text, prog_bar;
+  if (transferType == 'download') {
+    div_tag = 'div.receive-file-list';
+    prog_text = ELEM_DL_PROG_TEXT;
+    prog_bar = ELEM_DL_PROG_BAR;
+  } else if (transferType == 'upload') {
+    div_tag = 'div.upload-file-list';
+    prog_text = ELEM_UP_PROG_TEXT;
+    prog_bar = ELEM_UP_PROG_BAR;
+  } else {
+    throw (`Invalid transferType (${transferType}) was passed.`)
+  }
+
+  let row = document.querySelector(`${div_tag} > table > tbody`).rows[row_idx]
+  row.querySelector("td.transfer-progress").innerText = `${progress.toFixed(0)}%`
+
+  if (transferred_files <= total_files) {
+    document.getElementById(prog_text).innerText = `${transferred_files}/${total_files}`
+    document.getElementById(prog_bar).style.width = `${(transferred_bytes / total_bytes) * 100}%`
   }
 }

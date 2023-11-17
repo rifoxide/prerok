@@ -88,41 +88,42 @@ function send_chunk(start, end, name, size, chunk) {
   socket.send(concatTypedArrays(x, chunk));
 }
 
-let uploaded_files_no = 0
-let uploaded_bytes = 0
 async function upload_file(file) {
-  if (file == null) {
-    const msg = "file does not exist"
-    console.log(msg);
-    error_toast(msg)
-    return;
-  }
-
   let start = 0;
   let end = Math.min(CHUNK_SIZE, file.size);
-  console.log(`uploading: '${file.name}' (${human_readable_bytes(file.size)})`);
+  console.log(`uploading: '${file.name}' (${humanReadableBytes(file.size)})`);
 
   for (; ;) {
     try {
-      set_upload_progress(file.name, ((start / file.size) * 100).toFixed(0))
+      setTransferFileProgress(file.name, ((start / file.size) * 100), 'upload')
     } catch (e) {
       console.error(`failed to set upload progress. ${e}`)
     }
 
     if (start == file.size) {
-      console.log(`uploaded: '${file.name}' (${human_readable_bytes(file.size)})`);
-      ++uploaded_files_no;
-      set_upload_progress(file.name, ((start / file.size) * 100).toFixed(0))
+      console.log(`uploaded: '${file.name}' (${humanReadableBytes(file.size)})`);
+      ++transferred_files;
+      try {
+        setTransferFileProgress(file.name, ((start / file.size) * 100), 'upload')
+      } catch (e) {
+        console.error(`failed to set upload progress. ${e}`)
+      }
       break;
     };
 
     let chunk = new Uint8Array(await file.slice(start, end).arrayBuffer());
     send_chunk(start, end, file.name, file.size, chunk);
-    uploaded_bytes += (end - start)
+    transferred_bytes += (end - start)
     start = end;
     end = Math.min(file.size, end + CHUNK_SIZE);
 
   }
+}
+
+async function request_file(name, size) {
+  let header = JSON.stringify({ type: PASS_AWAY_FILE_REQ, file_info: { name: name, size: size } });
+  let len = gen_fixed_len(header.length);
+  socket.send(encoder.encode(PASS_AWAY_ + len + header));
 }
 
 function handle_pass_away(header_string, data) {
@@ -130,10 +131,17 @@ function handle_pass_away(header_string, data) {
   // console.log("pass away header: ", header);
   switch (header.type) {
     case PASS_AWAY_FILE_REQ: {
-      console.log("user requested: ", `${header.file_info.name} (${human_readable_bytes(header.file_info.size)})`);
+      console.log("user requested: ", `${header.file_info.name} (${humanReadableBytes(header.file_info.size)})`);
       $('.collapsible-body').css('display', 'block');
+
       const file = find_file(header.file_info.name, header.file_info.size);
-      upload_file(file);
+      if (file == null) {
+        const msg = `${header.file_info.name} (${humanReadableBytes(header.file_info.size)}) does not exist.`
+        console.log(msg);
+        error_toast(msg)
+      } else {
+        upload_file(file);
+      }
       break;
     }
     case PASS_AWAY_FILE_CHUNK: {
@@ -143,23 +151,28 @@ function handle_pass_away(header_string, data) {
   }
 }
 
-//"chunk_info":{"name":"GoogleDot-Black.tar.gz","size":4785772,"start":4500000,"end":4785772}
-let dl_files_no = 0
-let downloaded_bytes = 0
+
 function handle_file_chunk(chunk_info, data) {
-  // console.log("chunk info: ", chunk_info);
-  // console.log("chunk data: ", data);
   let file_buf = file_list_buf.get(chunk_info.name + chunk_info.size)
-  // file_buf.set(data, chunk_info.start);
   file_buf.push(data)
-  // console.log("file_buf: ", file_buf);
-  set_dl_progress(chunk_info.name, `${((chunk_info.end / chunk_info.size) * 100).toFixed(0)}`)
-  downloaded_bytes += (chunk_info.end - chunk_info.start)
+
+  try {
+    setTransferFileProgress(chunk_info.name, ((chunk_info.end / chunk_info.size) * 100), 'download')
+  } catch (e) {
+    console.error(`failed to set download progress. ${e}`)
+  }
+
+  transferred_bytes += (chunk_info.end - chunk_info.start)
   if (chunk_info.end == chunk_info.size) {
     const blob = new Blob(file_buf);
-    ++dl_files_no
-    set_dl_progress(chunk_info.name, `${((chunk_info.end / chunk_info.size) * 100).toFixed(0)}`)
-    // console.log("blob size: ", blob.size);
+    ++transferred_files
+
+    try {
+      setTransferFileProgress(chunk_info.name, ((chunk_info.end / chunk_info.size) * 100), 'download')
+    } catch (e) {
+      console.error(`failed to set download progress. ${e}`)
+    }
+
     const objectURL = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -169,7 +182,7 @@ function handle_file_chunk(chunk_info, data) {
     link.remove();
 
     window.URL.revokeObjectURL(objectURL);
-    console.log(`downloaded: '${chunk_info.name}' (${human_readable_bytes(chunk_info.size)})`)
+    console.log(`downloaded: '${chunk_info.name}' (${humanReadableBytes(chunk_info.size)})`)
   }
 }
 
@@ -177,7 +190,6 @@ function handle_404_transfer_code() {
   error_toast("Transfer code was incorrect.")
 }
 
-let upload_file_list = []
 function handle_init_sender_resp(header) {
   let res = JSON.parse(header);
 
@@ -185,14 +197,16 @@ function handle_init_sender_resp(header) {
   document.querySelector('span.pin_code').textContent = res.sid;
   document.getElementById('upload_btn').style.display = 'none';
   document.getElementById('bbrowse_btn').style.display = 'none';
+  document.querySelector('#upload_form > span.card-title.center').style.display = 'none'
+
 
   $('div.upload-file-list > table > thead > tr > th.center-align').text("Progress")
   $('div.upload-file-list > table > tbody > tr').each(function (idx) {
     const td = $(this).find("td:nth-child(3)")
     $(td).find("a.delete-file").remove()
     $(td).append("0%")
-    $(td).addClass("file-upload-progress-td")
-    upload_file_list.push({ name: this.querySelector('td.file-name').innerText, row_idx: idx })
+    $(td).addClass("transfer-progress")
+    transfers.push({ name: this.querySelector('td.file-name').innerText, row_idx: idx })
   });
   $('table.file-list').unbind('click');
 }
@@ -208,8 +222,29 @@ function handle_init_receiver_resp(header) {
     file_list_buf.set(res.file_list[i].name + res.file_list[i].size, []);
   }
 
-  gen_receive_table(res.file_list)
-  download_all_files()
+  genReceiveTable(res.file_list)
+  downloadAllFiles()
+}
+
+function init_sender() {
+  let init_sender_header = JSON.stringify({ "file_list": genUploadTableJson() });
+  let len = gen_fixed_len(init_sender_header.length);
+  socket.send(encoder.encode(INIT_SENDER_REQ + len + init_sender_header));
+}
+
+function init_receiver() {
+  let sid = document.getElementById("receive_code").value;
+  if (!sid.length) {
+    const msg = "No transfer code was given."
+    error_toast(msg);
+    console.log(msg)
+    return;
+  }
+
+  console.log("init receiver: ", sid);
+  let init_receiver_header = JSON.stringify({ "sid": sid });
+  let len = gen_fixed_len(init_receiver_header.length);
+  socket.send(encoder.encode(INIT_RECEIVER_REQ + len + init_receiver_header));
 }
 // let msg = binary_msg.text();
 // table.insertRow(-1).insertCell(0).innerText = msg;

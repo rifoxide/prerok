@@ -14,18 +14,18 @@ body,
   height: 44px;
 }
 
-.tabs .tab.generate a {
+.tabs .tab.send a {
   color: #56aff6;
 }
 
-.tabs .tab.generate a:focus,
-.tabs .tab.generate a:focus.active {
+.tabs .tab.send a:focus,
+.tabs .tab.send a:focus.active {
   background-color: #e7f4fe;
 }
 
-.tabs .tab.generate a:hover,
-.tabs .tab.generate a:active,
-.tabs .tab.generate a.active {
+.tabs .tab.send a:hover,
+.tabs .tab.send a:active,
+.tabs .tab.send a.active {
   background-color: transparent;
   color: #2196f3;
 }
