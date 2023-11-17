@@ -123,12 +123,14 @@ function handle_file_chunk(chunk_info, data) {
   // console.log("chunk info: ", chunk_info);
   // console.log("chunk data: ", data);
   let file_buf = file_list_buf.get(chunk_info.name + chunk_info.size)
-  file_buf.set(data, chunk_info.start);
+  // file_buf.set(data, chunk_info.start);
+  file_buf.push(data)
+  // console.log("file_buf: ", file_buf);
+  set_dl_progress(chunk_info.name, `${((chunk_info.end / chunk_info.size) * 100).toFixed(0)}`)
 
-  set_dl_progress(chunk_info.name, `${((chunk_info.end / file_buf.length) * 100).toFixed(0)}`)
-
-  if (chunk_info.end == file_buf.length) {
-    const blob = new Blob([file_buf]);
+  if (chunk_info.end == chunk_info.size) {
+    const blob = new Blob(file_buf);
+    console.log("blob size: ", blob.size);
     const objectURL = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -170,7 +172,7 @@ function handle_init_receiver_resp(header) {
 
   for (i = 0; i < res.file_list.length; i++) {
     console.log("setting file list buf: ");
-    file_list_buf.set(res.file_list[i].name + res.file_list[i].size, new Uint8Array(res.file_list[i].size));
+    file_list_buf.set(res.file_list[i].name + res.file_list[i].size, []);
   }
 
   gen_receive_table(res.file_list)
