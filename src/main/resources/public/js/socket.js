@@ -16,7 +16,7 @@ async function connect() {
   }
 
   socket.onclose = (event) => {
-    console.log("The connection has been closed (unexpected)");
+    console.log("The connection has been closed unexpectedly.");
     is_connected = false;
   };
 
@@ -43,10 +43,10 @@ async function handle_msg(binary_msg) {
   let header_len = parseInt(decoder.decode(msg_array.slice(1, 5)));
   let header_string = decoder.decode(msg_array.slice(5, 5 + header_len));
   let data = msg_array.slice(5 + header_len, msg_array.length);
-  console.log("msg_type:", msg_type);
-  console.log("header_len:", header_len);
-  console.log("header_string:", header_string);
-  console.log("data:", data);
+  // console.log("msg_type:", msg_type);
+  // console.log("header_len:", header_len);
+  // console.log("header_string:", header_string);
+  // console.log("data:", data);
 
   switch (msg_type) {
     case INIT_SENDER_RESP: {
@@ -88,26 +88,51 @@ function send_chunk(start, end, name, size, chunk) {
   socket.send(concatTypedArrays(x, chunk));
 }
 
+let uploaded_files_no = 0
+let uploaded_bytes = 0
 async function upload_file(file) {
-  if (file == null) { console.log("file does not exist"); return; }
+  if (file == null) {
+    const msg = "file does not exist"
+    console.log(msg);
+    error_toast(msg)
+    return;
+  }
+
   let start = 0;
   let end = Math.min(CHUNK_SIZE, file.size);
+  console.log(`uploading: '${file.name}' (${human_readable_bytes(file.size)})`);
+
   for (; ;) {
-    if (start == file.size) break;
+    try {
+      set_upload_progress(file.name, ((start / file.size) * 100).toFixed(0))
+    } catch (e) {
+      console.error(`failed to set upload progress. ${e}`)
+    }
+
+    if (start == file.size) {
+      console.log(`uploaded: '${file.name}' (${human_readable_bytes(file.size)})`);
+      ++uploaded_files_no;
+      set_upload_progress(file.name, ((start / file.size) * 100).toFixed(0))
+      break;
+    };
+
     let chunk = new Uint8Array(await file.slice(start, end).arrayBuffer());
     send_chunk(start, end, file.name, file.size, chunk);
+    uploaded_bytes += (end - start)
     start = end;
     end = Math.min(file.size, end + CHUNK_SIZE);
+
   }
 }
 
 function handle_pass_away(header_string, data) {
   header = JSON.parse(header_string);
-  console.log("pass away header: ", header);
+  // console.log("pass away header: ", header);
   switch (header.type) {
     case PASS_AWAY_FILE_REQ: {
-      console.log("file request: ", header.file_info.name);
-      let file = find_file(header.file_info.name, header.file_info.size);
+      console.log("user requested: ", `${header.file_info.name} (${human_readable_bytes(header.file_info.size)})`);
+      $('.collapsible-body').css('display', 'block');
+      const file = find_file(header.file_info.name, header.file_info.size);
       upload_file(file);
       break;
     }
@@ -130,7 +155,7 @@ function handle_file_chunk(chunk_info, data) {
 
   if (chunk_info.end == chunk_info.size) {
     const blob = new Blob(file_buf);
-    console.log("blob size: ", blob.size);
+    // console.log("blob size: ", blob.size);
     const objectURL = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -140,7 +165,7 @@ function handle_file_chunk(chunk_info, data) {
     link.remove();
 
     window.URL.revokeObjectURL(objectURL);
-    console.log("completed download.")
+    console.log(`downloaded: '${chunk_info.name}' (${human_readable_bytes(chunk_info.size)})`)
   }
 }
 
@@ -148,6 +173,7 @@ function handle_404_transfer_code() {
   error_toast("Transfer code was incorrect.")
 }
 
+let upload_file_list = []
 function handle_init_sender_resp(header) {
   let res = JSON.parse(header);
 
@@ -156,22 +182,26 @@ function handle_init_sender_resp(header) {
   document.getElementById('upload_btn').style.display = 'none';
   document.getElementById('bbrowse_btn').style.display = 'none';
 
-
-  $('div.upload-file-list > table').find("tr td:nth-child(3) a.delete-file").each(function () {
-    $(this).prop("onclick", null).unbind('click');
-    $($(this).find('i.material-icons')[0]).removeClass("red-text").addClass("grey-text");
+  $('div.upload-file-list > table > thead > tr > th.center-align').text("Progress")
+  // $('div.upload-file-list > table > tbody').find("tr td:nth-child(3)").each(function () {
+  $('div.upload-file-list > table > tbody > tr').each(function (idx) {
+    const td = $(this).find("td:nth-child(3)")
+    $(td).find("a.delete-file").remove()
+    $(td).append("0%")
+    $(td).addClass("file-upload-progress-td")
+    upload_file_list.push({ name: this.querySelector('td.file-name').innerText, row_idx: idx })
   });
   $('table.file-list').unbind('click');
 }
 
 function handle_init_receiver_resp(header) {
   let res = JSON.parse(header);
-  console.log("Your are a receiver of: ", res.sid);
+  console.log("You are the receiver of: ", res.sid);
   console.log("FILE LIST: ", res.file_list);
   g_file_list = res.file_list;
 
   for (i = 0; i < res.file_list.length; i++) {
-    console.log("setting file list buf: ");
+    console.log(`setting file list buf for '${res.file_list[i].name}' (${res.file_list[i].size} bytes)`);
     file_list_buf.set(res.file_list[i].name + res.file_list[i].size, []);
   }
 

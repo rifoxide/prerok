@@ -40,7 +40,7 @@ async function download_all_files() {
 
     transfers.push({ name: file_name, row_idx: i })
 
-    console.log(`Downloading '${file_name}' (${file_size})`)
+    console.log(`Downloading: '${file_name}' (${file_size})`)
     await request_file(file_name, size_in_bytes)
     await sleep(300);
   }

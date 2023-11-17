@@ -29,6 +29,8 @@ function is_duplicate(file_name, file_size) {
     return flag
 }
 
+let total_files = 0
+let total_bytes = 0
 function gen_upload_table(files) {
     const table = document.querySelector('div.upload-file-list table.file-list')
     table.style.display = ''
@@ -54,8 +56,10 @@ function gen_upload_table(files) {
                 displayLength: 5000
             })
         }
+        total_bytes += file.size
     }
 
+    total_files = document.getElementById('browse_btn').files.length
     set_file_status()
 }
 
@@ -67,10 +71,17 @@ function gen_upload_table_json() {
         const size = $(this).find('td').eq(1).attr('size-in-bytes')
         data.push({ name: name, size: size })
     })
-
     return data;
 }
 
+function set_upload_progress(file_name, progress) {
+    const row_idx = upload_file_list.find(x => x.name === file_name).row_idx;
+    let row = document.querySelector("div.upload-file-list > table > tbody").rows[row_idx]
+    row.querySelector("td.file-upload-progress-td").innerText = `${progress}%`
+
+    document.getElementById("overall_progress_text").innerText = `${uploaded_files_no}/${total_files}`
+    document.getElementById("overall_progress_bar").style.width = `${(uploaded_bytes / total_bytes) * 100}%`
+}
 
 function init_sender() {
     let init_sender_header = JSON.stringify({ "file_list": gen_upload_table_json() });
