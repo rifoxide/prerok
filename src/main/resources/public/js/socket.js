@@ -144,6 +144,8 @@ function handle_pass_away(header_string, data) {
 }
 
 //"chunk_info":{"name":"GoogleDot-Black.tar.gz","size":4785772,"start":4500000,"end":4785772}
+let dl_files_no = 0
+let downloaded_bytes = 0
 function handle_file_chunk(chunk_info, data) {
   // console.log("chunk info: ", chunk_info);
   // console.log("chunk data: ", data);
@@ -152,9 +154,11 @@ function handle_file_chunk(chunk_info, data) {
   file_buf.push(data)
   // console.log("file_buf: ", file_buf);
   set_dl_progress(chunk_info.name, `${((chunk_info.end / chunk_info.size) * 100).toFixed(0)}`)
-
+  downloaded_bytes += (chunk_info.end - chunk_info.start)
   if (chunk_info.end == chunk_info.size) {
     const blob = new Blob(file_buf);
+    ++dl_files_no
+    set_dl_progress(chunk_info.name, `${((chunk_info.end / chunk_info.size) * 100).toFixed(0)}`)
     // console.log("blob size: ", blob.size);
     const objectURL = URL.createObjectURL(blob);
 
@@ -183,7 +187,6 @@ function handle_init_sender_resp(header) {
   document.getElementById('bbrowse_btn').style.display = 'none';
 
   $('div.upload-file-list > table > thead > tr > th.center-align').text("Progress")
-  // $('div.upload-file-list > table > tbody').find("tr td:nth-child(3)").each(function () {
   $('div.upload-file-list > table > tbody > tr').each(function (idx) {
     const td = $(this).find("td:nth-child(3)")
     $(td).find("a.delete-file").remove()

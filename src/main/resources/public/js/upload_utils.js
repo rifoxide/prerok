@@ -79,7 +79,9 @@ function set_upload_progress(file_name, progress) {
     let row = document.querySelector("div.upload-file-list > table > tbody").rows[row_idx]
     row.querySelector("td.file-upload-progress-td").innerText = `${progress}%`
 
-    document.getElementById("overall_progress_text").innerText = `${uploaded_files_no}/${total_files}`
+    if (uploaded_files_no <= total_files)
+        document.getElementById("overall_progress_text").innerText = `${uploaded_files_no}/${total_files}`
+
     document.getElementById("overall_progress_bar").style.width = `${(uploaded_bytes / total_bytes) * 100}%`
 }
 

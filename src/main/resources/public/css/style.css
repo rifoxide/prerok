@@ -6,7 +6,7 @@ body,
 
 @media (min-width: 800px) {
   .card {
-    width: 550px;
+    width: 600px;
   }
 }
 
@@ -85,6 +85,7 @@ div#current_ongoing_file_tooltip {
   min-height: 18px;
   overflow: hidden;
   position: relative;
+  max-width: 100%;
 }
 
 .determinate {
@@ -92,4 +93,5 @@ div#current_ongoing_file_tooltip {
   text-align: center;
   white-space: nowrap;
   font-size: small;
+  max-width: 100%;
 }

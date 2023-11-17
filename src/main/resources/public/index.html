@@ -85,11 +85,11 @@
                 <li>
                   <div class="collapsible-header">
                     <i class="material-icons blue-text">pin</i>
-                    <span>Your transfer code <b><span class="pin_code"></span></b></span>
+                    <span>Share the receiving code <b><span class="pin_code"></span></b></span>
                   </div>
                   <div class="collapsible-body">
                     <span>
-                      <b>Overall progress</b>
+                      <b>Overall upload progress</b>
                       <div class="progress">
                         <div class="determinate blue" style="width: 0%;animation: grow 2s;" id="overall_progress_bar">
                           <span id="overall_progress_text"></span>
@@ -117,18 +117,38 @@
                   </table>
                 </div>
 
+                <div id="receive-file-status" class="chip left" style="display: none;"></div>
+
                 <span class="card-title center">Enter the receiving code</span>
                 <div class="input-field" id="receive_code_input">
-                  <input pattern="^[A-Za-z0-9]+$" id="receive_code" type="text" class="validate" required>
-                  <label for="receive_code">receiving code</label>
+                  <input pattern="^[A-Za-z0-9]+$" id="receive_code" type="text" class="validate center-align" required>
                 </div>
               </div>
-              <div class="card-action center-align">
+              <div class="card-action center">
                 <button type="submit" id="delete_btn" onclick="init_ws(init_receiver)"
                   class="btn btn-small waves-effect right-align red">Download<i
                     class="material-icons right">cloud_download</i>
                 </button>
               </div>
+              <ul class="collapsible receive" style="display:none;">
+                <li>
+                  <div class="collapsible-header">
+                    <i class="material-icons blue-text">pin</i>
+                    <span>Your receiving code was <b><span class="pin_code"></span></b></span>
+                  </div>
+                  <div class="collapsible-body">
+                    <span>
+                      <b>Overall progress</b>
+                      <div class="progress">
+                        <div class="determinate blue" style="width: 0%;animation: grow 2s;"
+                          id="overall_dl_progress_bar">
+                          <span id="overall_dl_progress_text"></span>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                </li>
+              </ul>
             </form>
           </div>
         </div>
