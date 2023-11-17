@@ -32,7 +32,7 @@ function disconnect() {
 // let gmsg;
 async function handle_msg(binary_msg) {
   if (typeof binary_msg == "string") {
-    handle_404_transfer_code();
+    handle_status_msg(binary_msg)
     return;
   }
 
@@ -186,8 +186,12 @@ function handle_file_chunk(chunk_info, data) {
   }
 }
 
-function handle_404_transfer_code() {
-  error_toast("Transfer code was incorrect.")
+function handle_status_msg(msg) {
+  console.log(`received status msg: ${msg}`)
+
+  let status_msg = status_msgs[msg]
+  if (!status_msg) status_msg = status_msgs['UNKNOWN_ERROR']
+  error_toast(status_msg.msg)
 }
 
 function handle_init_sender_resp(header) {

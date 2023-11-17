@@ -1,28 +1,24 @@
 package com.prerok;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prerok.receiver.request.ReceiverRequestHeader;
-import com.prerok.receiver.response.ReceiverInitRespHeader;
 import com.prerok.sender.request.InitSenderHeader;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 public class SocketHandler extends BinaryWebSocketHandler {
 	final Logger logger = LoggerFactory.getLogger(SocketHandler.class);
+	String receiverId = "";
 
 	private final HashMap<String, PrerokSession> sid_to_prerok_session = new HashMap<>();
 	private final HashMap<String, String> conn_id_to_session_id = new HashMap<>();
@@ -59,6 +55,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 			case MessageTypes.INIT_SENDER_REQ: { // init sender
 				if (conn_id_to_session_id.get(connection.getId()) != null) {
 					logger.info(String.format("user %s already in a session", connection.getId()));
+					SocketUtils.sendStatusMsg(connection, "ALREADY_IN_A_SESSION", true);
 					return;
 				}
 
@@ -66,7 +63,8 @@ public class SocketHandler extends BinaryWebSocketHandler {
 				try {
 					init_sender_header = new ObjectMapper().readValue(new String(header), InitSenderHeader.class);
 				} catch (Exception e) {
-					logger.error("Could not deserialize InitSenderHeader");
+					logger.error(String.format("Could not deserialize InitSenderHeader. error: %s", e));
+					SocketUtils.sendStatusMsg(connection, "SERVER_ERROR", true);
 					return;
 				}
 				PrerokSession new_session = new PrerokSession(connection, init_sender_header.get_file_list());
@@ -82,6 +80,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 							ReceiverRequestHeader.class);
 				} catch (Exception e) {
 					logger.error("Could not deserialize InitReceiver");
+					SocketUtils.sendStatusMsg(connection, "SERVER_ERROR", false);
 					return;
 				}
 
@@ -91,23 +90,26 @@ public class SocketHandler extends BinaryWebSocketHandler {
 							connection.getId(), receiver_request_header.get_sid()));
 					session.set_receiver(connection);
 					conn_id_to_session_id.put(connection.getId(), session.get_id());
+					receiverId = session.receiver.getId();
 				} else {
 					logger.info(String.format("couldn't find sender for the receiver '%s' with transfer code '%s'",
 							connection.getId(),
 							receiver_request_header.get_sid()));
-					try {
-						connection.sendMessage(new TextMessage("TRANSFER_CODE_NOT_FOUND"));
-					} catch (Exception e) {
-						logger.info("failed to send message to the receiver.");
-					}
+					SocketUtils.sendStatusMsg(connection, "INVALID_TRANSFER_CODE", false);
 				}
-
 				break;
 			}
+
 			case MessageTypes.PASS_AWAY: {
 				String sid = conn_id_to_session_id.get(connection.getId());
 				PrerokSession session = sid_to_prerok_session.get(sid);
-				session.pass_away(connection, payload);
+
+				if (session.receiver == null) {
+					logger.info(String.format("receiver '%s' got disconnected.", receiverId));
+					SocketUtils.sendStatusMsg(connection, "RECEIVER_DISCONNECTED", true);
+				} else {
+					session.pass_away(connection, payload);
+				}
 				break;
 			}
 
@@ -130,7 +132,7 @@ public class SocketHandler extends BinaryWebSocketHandler {
 			session.disconnect_handler(connection);
 			if (session.should_be_removed()) {
 				sid_to_prerok_session.remove(sid);
-				logger.info("%s removed forever");
+				logger.info(String.format("transfer code '%s' is removed.", sid));
 			}
 		}
 		super.afterConnectionClosed(connection, status);
