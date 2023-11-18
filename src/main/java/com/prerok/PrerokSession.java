@@ -1,16 +1,18 @@
 package com.prerok;
 
+import com.prerok.receiver.response.ReceiverInitRespHeader;
+import com.prerok.sender.response.SenderInitRespHeader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Random;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.prerok.receiver.response.ReceiverInitRespHeader;
-import com.prerok.sender.response.SenderInitRespHeader;
-
 public class PrerokSession {
+  final Logger logger = LoggerFactory.getLogger(PrerokSession.class);
+
   String sid;
   WebSocketSession sender;
   WebSocketSession receiver;
@@ -36,8 +38,7 @@ public class PrerokSession {
     this.sender = sender;
     this.file_list = file_list;
     sid = getSaltString();
-    System.out.println(String.format("new session: %s created with sender: %s", sid, sender.getId()));
-
+    logger.info(String.format("sender %s: created new session '%s'", sender.getId(), sid));
     sender_init_notify();
   }
 
@@ -48,7 +49,8 @@ public class PrerokSession {
 
   public void receiver_init_notify() {
     String receiver_init_resp_header = new ReceiverInitRespHeader(true, sid, file_list).as_json();
-    reply_receiver(MessageTypes.INIT_RECEIVER_RESP, receiver_init_resp_header.getBytes(), new byte[0]);
+    reply_receiver(
+        MessageTypes.INIT_RECEIVER_RESP, receiver_init_resp_header.getBytes(), new byte[0]);
   }
 
   void reply_sender(byte code, byte[] header, byte[] data) {
@@ -61,8 +63,7 @@ public class PrerokSession {
     try {
       sender.sendMessage(new BinaryMessage(buffer.array()));
     } catch (Exception e) {
-      System.out.println("Could not repy to sender");
-      e.printStackTrace();
+      logger.error(String.format("sender '%s': failed to reply. error: %s", sender.getId(), e));
     }
   }
 
@@ -75,10 +76,8 @@ public class PrerokSession {
     buffer.put(data);
     try {
       receiver.sendMessage(new BinaryMessage(buffer.array()));
-
     } catch (Exception e) {
-      System.out.println("Could not repy to receiver");
-      e.printStackTrace();
+      logger.error(String.format("receiver '%s': failed to reply. error: %s", receiver.getId(), e));
     }
   }
 
@@ -94,10 +93,8 @@ public class PrerokSession {
   }
 
   public void disconnect_handler(WebSocketSession connection) {
-    if (sender == connection)
-      sender = null;
-    else if (receiver == connection)
-      receiver = null;
+    if (sender == connection) sender = null;
+    else if (receiver == connection) receiver = null;
   }
 
   boolean should_be_removed() {
@@ -135,6 +132,5 @@ public class PrerokSession {
     }
     String saltStr = salt.toString();
     return saltStr;
-
   }
 }

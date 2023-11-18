@@ -1,8 +1,7 @@
 package com.prerok.sender.request;
 
-import java.util.ArrayList;
-
 import com.prerok.FileInfo;
+import java.util.ArrayList;
 
 public class InitSenderHeader {
   public ArrayList<FileInfo> file_list;
