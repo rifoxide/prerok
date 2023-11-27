@@ -11,17 +11,16 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketHandler(), "/text");
-    }
+  public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+    registry.addHandler(new SocketHandler(), "/text");
+  }
 
-    // set websocket buffer size to 5MB
-    @Bean
-    public ServletServerContainerFactoryBean createWebSocketContainer() {
-        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(1024 * 1024 * 5);
-        container.setMaxBinaryMessageBufferSize(1024 * 1024 * 5);
-        return container;
-    }
-
+  // set websocket buffer size to 5MB
+  @Bean
+  public ServletServerContainerFactoryBean createWebSocketContainer() {
+    ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+    container.setMaxTextMessageBufferSize(1024 * 1024 * 5);
+    container.setMaxBinaryMessageBufferSize(1024 * 1024 * 5);
+    return container;
+  }
 }

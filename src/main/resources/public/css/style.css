@@ -1,12 +1,10 @@
-html,
-body,
-.container {
-  height: 97%;
+.valign-wrapper {
+  min-height: calc(100vh - 64px);
 }
 
 @media (min-width: 800px) {
   .card {
-    width: 550px;
+    width: 600px;
   }
 }
 
@@ -14,20 +12,28 @@ body,
   height: 44px;
 }
 
-.tabs .tab.generate a {
-  color: #56aff6;
+.tab.send a {
+  color: #52B1F7 !important;
 }
 
-.tabs .tab.generate a:focus,
-.tabs .tab.generate a:focus.active {
-  background-color: #e7f4fe;
+.tab.send a:hover,
+.tabs .tab.send a:focus {
+  color: #219BF5 !important;
 }
 
-.tabs .tab.generate a:hover,
-.tabs .tab.generate a:active,
-.tabs .tab.generate a.active {
+.tab.send a:focus.active {
+  background-color: #e7f4fe !important;
+}
+
+.tab.send a.active:active {
   background-color: transparent;
-  color: #2196f3;
+  color: #2196f3 !important;
+}
+
+.tab.send.disabled a,
+.tab.send.disabled a:hover {
+  background-color: transparent !important;
+  color: #8fcdff !important;
 }
 
 .collapsible {
@@ -85,11 +91,13 @@ div#current_ongoing_file_tooltip {
   min-height: 18px;
   overflow: hidden;
   position: relative;
+  max-width: 100%;
 }
 
 .determinate {
   position: relative;
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
   font-size: small;
+  max-width: 100%;
 }

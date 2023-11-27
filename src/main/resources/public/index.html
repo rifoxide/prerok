@@ -2,9 +2,10 @@
 
 <head>
   <title>Prerok</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.slim.min.js"
     integrity="sha512-sNylduh9fqpYUK5OYXWcBleGzbZInWj8yCJAU57r1dpSK9tP2ghf/SRYCMj+KsslFkCOt3TvJrX2AV/Gc3wOqA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -18,37 +19,43 @@
   <script src="js/download_utils.js"></script>
   <script src="js/socket.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/status_msgs.js"></script>
 </head>
 
 <body>
   <div class="navbar-fixed">
     <nav>
-      <div class="nav-wrapper blue darken-3">
+      <div class="nav-wrapper blue darken-2">
         <a href="#" class="brand-logo center">Prerok</a>
       </div>
     </nav>
   </div>
+
   <div class="container valign-wrapper">
     <div class="row">
-      <div class="card">
+      <div class="card hoverable">
         <div class="card-tabs">
           <ul class="tabs tabs-fixed-width">
-            <li class="tab generate">
-              <a class="active" href="#generate">Send</a>
+            <li class="tab send ">
+              <a class="active" href="#send">Send</a>
             </li>
-            <li class="tab"><a href="#receive">Receive</a></li>
+            <li class="tab receive">
+              <a href="#receive">Receive</a>
+            </li>
           </ul>
         </div>
         <div class="card-content">
-          <div id="generate">
-            <form id="submit_url">
+          <div id="send">
+            <form id="upload_form">
               <span class="card-title center">Select the file(s) you want to send</span>
               <div class="card-content left-align" style="display:none;">
                 <div class="upload-file-list" style="margin-bottom: 20px;">
                   <table class="file-list striped">
                     <thead>
                       <tr>
-                        <th width="70%">Name</th>
+                        <th width="67%">Name</th>
                         <th>Size</th>
                         <th class="center-align">Action</th>
                       </tr>
@@ -56,7 +63,7 @@
                     <tbody></tbody>
                   </table>
                 </div>
-                <div id="file-status" class="chip left">Tag</div>
+                <div id="file-status" class="chip left"></div>
               </div>
 
               <div class="card-action center" style="margin-top: 20px;">
@@ -81,41 +88,38 @@
                     class="material-icons right">cloud_upload</i>
                 </button>
               </div>
-              <ul class="collapsible pin" style="display: none;">
+
+              <ul class="collapsible pin" style="display: none;transition: all .5s linear;">
                 <li>
                   <div class="collapsible-header">
                     <i class="material-icons blue-text">pin</i>
-                    <span>Your transfer code <b><span class="pin_code"></span></b></span>
+                    <span>Share the receiving code <b><span class="pin_code"></span></b></span>
                   </div>
-                  <div class="collapsible-body-disabled" style="display: none;">
+                  <div class="collapsible-body">
                     <span>
-                      <div id="current_ongoing_file_tooltip" class="tooltipped" data-tooltip="">
-                        <i id=" current_ongoing_file_name"></i>
-                      </div>
+                      <b>Overall upload progress</b>
                       <div class="progress">
-                        <div class="determinate blue" style="width: 50%; animation: grow 2s;"><span
-                            id="current_ongoing_file_progress"></span></div>
-                      </div>
-                    </span>
-                    <span>
-                      <b>Overall progress</b>
-                      <div class="progress"><span id="overall_progress"></span>
-                        <div class="determinate blue" style="width: 20%"></div>
+                        <div class="determinate blue" style="width: 0%;animation: grow 2s;"
+                          id="overall_up_progress_bar">
+                          <span id="overall_up_progress_text"></span>
+                        </div>
                       </div>
                     </span>
                   </div>
                 </li>
               </ul>
+
             </form>
           </div>
+
           <div id="receive">
-            <form id="receive_form">
+            <form id="receive_form" autocomplete="off">
               <div class="card-content center">
                 <div class="receive-file-list" style="margin-bottom: 20px;display:none;">
                   <table class="file-list striped">
                     <thead>
                       <tr>
-                        <th width="70%">Name</th>
+                        <th width="67%">Name</th>
                         <th>Size</th>
                         <th align="center-align">Progress</th>
                       </tr>
@@ -124,18 +128,39 @@
                   </table>
                 </div>
 
+                <div id="receive-file-status" class="chip left" style="display: none;"></div>
+
                 <span class="card-title center">Enter the receiving code</span>
                 <div class="input-field" id="receive_code_input">
-                  <input pattern="^[A-Za-z0-9]+$" id="receive_code" type="text" class="validate" required>
-                  <label for="receive_code">receiving code</label>
+                  <input pattern="^[A-Za-z0-9]+$" id="receive_code" type="text" class="validate center-align" required
+                    style="max-width: fit-content;">
                 </div>
               </div>
-              <div class="card-action center-align">
+              <div class="card-action center">
                 <button type="submit" id="delete_btn" onclick="init_ws(init_receiver)"
                   class="btn btn-small waves-effect right-align red">Download<i
                     class="material-icons right">cloud_download</i>
                 </button>
               </div>
+              <ul class="collapsible receive" style="display:none;">
+                <li>
+                  <div class="collapsible-header">
+                    <i class="material-icons blue-text">pin</i>
+                    <span>Your receiving code was <b><span class="pin_code"></span></b></span>
+                  </div>
+                  <div class="collapsible-body">
+                    <span>
+                      <b>Overall download progress</b>
+                      <div class="progress">
+                        <div class="determinate blue" style="width: 0%;animation: grow 2s;"
+                          id="overall_dl_progress_bar">
+                          <span id="overall_dl_progress_text"></span>
+                        </div>
+                      </div>
+                    </span>
+                  </div>
+                </li>
+              </ul>
             </form>
           </div>
         </div>
@@ -146,12 +171,11 @@
     window.addEventListener('DOMContentLoaded', event => {
       m_tab_init()
       m_tab_callback()
-      m_collapsible_init()
       m_tooltip_init()
     })
 
     document.querySelector('div.btn.blue.btn-small input').addEventListener('change', function (e) {
-      gen_upload_table(e.target.files);
+      genUploadTable(e.target.files);
     });
 
 
@@ -160,12 +184,12 @@
       event.preventDefault()
     })
 
-
     $('table.file-list').on('click', function (event) {
-      set_file_status();
+      setUploadChipInfo();
     });
 
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 
 </html>

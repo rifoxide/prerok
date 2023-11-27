@@ -1,9 +1,8 @@
 package com.prerok.receiver.response;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prerok.FileInfo;
+import java.util.ArrayList;
 
 public class ReceiverInitRespHeader {
   public boolean status;
