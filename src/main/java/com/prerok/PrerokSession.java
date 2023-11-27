@@ -54,6 +54,10 @@ public class PrerokSession {
   }
 
   void reply_sender(byte code, byte[] header, byte[] data) {
+    if(sender==null) {
+      logger.error("receiver isn't connected!");
+      return;
+    }
     byte[] reply = new byte[1 + 4 + header.length + data.length];
     ByteBuffer buffer = ByteBuffer.wrap(reply);
     buffer.put(code);
@@ -68,6 +72,10 @@ public class PrerokSession {
   }
 
   void reply_receiver(byte code, byte[] header, byte[] data) {
+    if(receiver==null) {
+      logger.error("receiver isn't connected!");
+      return;
+    }
     byte[] reply = new byte[1 + 4 + header.length + data.length];
     ByteBuffer buffer = ByteBuffer.wrap(reply);
     buffer.put(code);
@@ -93,12 +101,18 @@ public class PrerokSession {
   }
 
   public void disconnect_handler(WebSocketSession connection) {
-    if (sender == connection) sender = null;
-    else if (receiver == connection) receiver = null;
+    if (sender == connection) {
+      reply_receiver(MessageTypes.SENDER_DISCONNECT, new byte[0], new byte[0]);
+      sender = null;
+    }
+    else if (receiver == connection) {
+      reply_sender(MessageTypes.RECEIVER_DISCONNECT, new byte[0], new byte[0]);
+      receiver = null;
+    }
   }
 
   boolean should_be_removed() {
-    return sender == null && receiver == null;
+    return receiver == null;
   }
 
   public void set_receiver(WebSocketSession receiver) {
