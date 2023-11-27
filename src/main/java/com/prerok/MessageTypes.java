@@ -8,4 +8,6 @@ public final class MessageTypes {
   public static final byte INIT_RECEIVER_RESP = 2;
 
   public static final byte PASS_AWAY = 7;
+  public static final byte SENDER_DISCONNECT = 10;
+  public static final byte RECEIVER_DISCONNECT = 11;
 }

@@ -54,10 +54,27 @@ async function handle_msg (binary_msg) {
       handle_init_receiver_resp(header_string)
       break
     }
+    case SENDER_DISCONNECT: {
+      handle_sender_disconnect(header_string)
+      break
+    }
+    case RECEIVER_DISCONNECT: {
+      handle_receiver_disconnect(header_string)
+      break
+    }
     case PASS_AWAY: {
       handle_pass_away(header_string, data)
+      break
     }
   }
+}
+
+function handle_sender_disconnect() {
+  console.log("sender disconnected!");  
+}
+
+function handle_receiver_disconnect() {
+  console.log("receiver disconnected!");  
 }
 
 function find_file (name, size) {
