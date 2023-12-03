@@ -1,5 +1,6 @@
 let socket
 let is_connected = false
+let is_receiver_connected
 
 async function connect () {
   if (is_connected) return
@@ -44,7 +45,6 @@ async function handle_msg (binary_msg) {
   // console.log("header_len:", header_len);
   // console.log("header_string:", header_string);
   // console.log("data:", data);
-
   switch (msg_type) {
     case INIT_SENDER_RESP: {
       handle_init_sender_resp(header_string)
@@ -69,12 +69,18 @@ async function handle_msg (binary_msg) {
   }
 }
 
-function handle_sender_disconnect() {
-  console.log("sender disconnected!");  
+function handle_sender_disconnect () {
+  const msg = 'sender got disconnected.'
+  console.log(msg)
+  error_toast(msg)
 }
 
-function handle_receiver_disconnect() {
-  console.log("receiver disconnected!");  
+function handle_receiver_disconnect () {
+  is_receiver_connected = false
+
+  const msg = 'receiver got disconnected.'
+  console.log(msg)
+  error_toast(msg)
 }
 
 function find_file (name, size) {
@@ -108,6 +114,8 @@ async function upload_file (file) {
   console.log(`uploading: '${file.name}' (${humanReadableBytes(file.size)})`)
 
   for (; ;) {
+    if (!is_receiver_connected) break
+
     try {
       setTransferFileProgress(file.name, ((start / file.size) * 100), 'upload')
     } catch (e) {
@@ -144,7 +152,9 @@ function handle_pass_away (header_string, data) {
   // console.log("pass away header: ", header);
   switch (header.type) {
     case PASS_AWAY_FILE_REQ: {
+      is_receiver_connected = true
       console.log('user requested: ', `${header.file_info.name} (${humanReadableBytes(header.file_info.size)})`)
+
       $('.collapsible-body').css('display', 'block')
 
       const file = find_file(header.file_info.name, header.file_info.size)
@@ -230,11 +240,11 @@ function handle_init_sender_resp (header) {
 function handle_init_receiver_resp (header) {
   const res = JSON.parse(header)
   console.log('You are the receiver of: ', res.sid)
-  console.log('FILE LIST: ', res.file_list)
+  console.debug('FILE LIST: ', res.file_list)
   g_file_list = res.file_list
 
   for (i = 0; i < res.file_list.length; i++) {
-    console.log(`setting file list buf for '${res.file_list[i].name}' (${res.file_list[i].size} bytes)`)
+    console.debug(`setting file list buf for '${res.file_list[i].name}' (${res.file_list[i].size} bytes)`)
     file_list_buf.set(res.file_list[i].name + res.file_list[i].size, [])
   }
 
